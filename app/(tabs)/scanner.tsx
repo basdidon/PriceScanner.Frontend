@@ -4,7 +4,7 @@ import { CameraView, Camera, BarcodeScanningResult } from "expo-camera";
 import Svg, { Defs, ClipPath, G, Rect } from "react-native-svg";
 
 // We can use this to make the overlay fill the entire width
-var { width, height } = Dimensions.get("screen");
+var { width, height } = Dimensions.get('screen');
 var boxWidth: number = 300;
 var boxHeight: number = 150;
 
@@ -38,7 +38,7 @@ export default function CameraScannerComponent() {
             <CameraView
                 onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
                 barcodeScannerSettings={{ barcodeTypes: ["ean13"] }}
-                style={{ flex: 1 }}
+                style={{ flex: 1 ,zIndex:-3}}
             />
             {scanned && (
                 <Button
@@ -50,7 +50,7 @@ export default function CameraScannerComponent() {
             <Text
                 style={{
                     position: "absolute",
-                    top: height / 2 + boxHeight / 2,
+                    top: height / 2 + boxHeight / 2 - (StatusBar.currentHeight ?? 0) + 24,
                     width: width,
                     textAlign: "center",
                     fontSize: 16,
@@ -61,14 +61,14 @@ export default function CameraScannerComponent() {
             >
                 นำบาร์โค้ดมาแสกนที่นี่
             </Text>
-            <Svg style={{ position: "absolute" }}>
+            <Svg style={{ position: "absolute" ,zIndex:-2}}>
                 <Defs>
                     <ClipPath id="clip">
                         <G scale="1">
                             <Rect width={width} height={height} />
                             <Rect
                                 x={width / 2 - boxWidth / 2}
-                                y={height / 2 - boxHeight / 2}
+                                y={(height / 2 - boxHeight / 2 )- (StatusBar.currentHeight ?? 0)}
                                 rx={24}
                                 ry={24}
                                 width={boxWidth}
@@ -82,7 +82,6 @@ export default function CameraScannerComponent() {
                     y="0"
                     height={height}
                     width={width}
-                    //fill="url(#grad)"
                     fill={"#000D"}
                     clipPath="url(#clip)"
                 />
@@ -93,9 +92,7 @@ export default function CameraScannerComponent() {
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: StatusBar.currentHeight,
         flex: 1,
-        zIndex: 5,
         justifyContent: "center",
         backgroundColor: "white", // White background for the entire screen
     },

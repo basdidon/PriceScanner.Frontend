@@ -12,6 +12,7 @@ export default function TabLayout() {
         <Tabs
             screenOptions={{
                 tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+                tabBarShowLabel: false,
                 headerShown: false,
             }}
         >
@@ -25,14 +26,20 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="explore"
+                name="scanner"
                 options={{
-                    title: "Explore",
+                    title: "Cart",
                     tabBarIcon: ({ color, focused }) => (
-                        <TabBarIcon
-                            name={focused ? "code-slash" : "code-slash-outline"}
-                            color={color}
-                        />
+                        <TabBarIcon name={focused ? "cart" : "cart-outline"} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="cart"
+                options={{
+                    title: "Cart",
+                    tabBarIcon: ({ color, focused }) => (
+                        <TabBarIcon name={focused ? "cart" : "cart-outline"} color={color} />
                     ),
                 }}
             />

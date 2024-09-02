@@ -1,11 +1,28 @@
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { View, Text, StyleSheet, Image, Button } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { Text, IconButton, Button, MD2Colors as Colors } from "react-native-paper";
+
+type Product = {
+    id: string;
+    name: string;
+    buyPrice: number;
+    unitPrice: number;
+    description?: string;
+};
 
 export default function DetailsScreen() {
     const { id } = useLocalSearchParams();
-    const [quantity, setQuantity] = useState(0);
+    const [quantity, setQuantity] = useState(1);
+
+    const product: Product = {
+        id: "885121554400",
+        name: "Sample Product",
+        buyPrice: 50,
+        unitPrice: 70,
+        description: "This is a sample product.",
+    };
 
     return (
         <ParallaxScrollView
@@ -17,28 +34,52 @@ export default function DetailsScreen() {
                 />
             }
             footerElement={
-                <View style={{ padding: 12, gap: 8 }}>
+                <View
+                    style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 24,
+                        gap: 12,
+                        backgroundColor: "#f5f5f5",
+                    }}
+                >
                     <View style={{ flexDirection: "row" }}>
-                        <Text style={{ marginEnd: "auto", fontSize: 32 }}>20 ฿</Text>
-                        <Button
-                            title="-"
+                        <Text style={{ marginEnd: "auto", fontSize: 32, fontWeight: "bold" }}>
+                            {quantity * product.unitPrice} ฿
+                        </Text>
+                        <IconButton
+                            icon={"minus"}
+                            mode="contained"
+                            containerColor={Colors.green300}
+                            iconColor={Colors.white}
                             onPress={() => setQuantity(quantity - 1 < 1 ? 1 : quantity - 1)}
                         />
                         <Text style={{ marginHorizontal: 8, fontSize: 32 }}>{quantity}</Text>
-                        <Button
-                            title="+"
+                        <IconButton
+                            icon={"plus"}
+                            mode="contained"
+                            containerColor={Colors.green300}
+                            iconColor={Colors.white}
                             onPress={() => {
                                 setQuantity(quantity + 1);
                             }}
                         />
                     </View>
-                    <Button title="เพิ่มลงตะกร้า" color={"forestgreen"} />
+                    <Button
+                        icon={"cart"}
+                        mode="contained"
+                        buttonColor={Colors.green500}
+                        onPress={() => setQuantity(10)}
+                    >
+                        เพิ่มลงในตะกร้า
+                    </Button>
                 </View>
             }
         >
             <View style={{ borderBottomColor: "#999", borderBottomWidth: 2, paddingBottom: 8 }}>
-                <Text style={styles.title}>น้ำยาล้างจาน ซันไลท์ กลิ่นมะนาว</Text>
-                <Text style={styles.id_text}>ID: {id}</Text>
+                <Text style={styles.title} numberOfLines={2} lineBreakMode="tail">
+                    {product.name}
+                </Text>
+                <Text style={styles.id_text}>ID: {product.id}</Text>
             </View>
             <View style={{ flexDirection: "row" }}>
                 <Text style={{ fontSize: 18, textAlignVertical: "bottom" }}>ราคา / ชิ้น</Text>
@@ -50,7 +91,7 @@ export default function DetailsScreen() {
                         textAlignVertical: "bottom",
                     }}
                 >
-                    20 ฿
+                    {product.unitPrice} ฿
                 </Text>
             </View>
             <View style={{ flexDirection: "row" }}>
@@ -66,12 +107,12 @@ export default function DetailsScreen() {
                         color: "#999",
                     }}
                 >
-                    {180 / 12} ฿
+                    {product.buyPrice} ฿
                 </Text>
             </View>
             <View style={{}}>
                 <Text style={{ fontSize: 20, fontWeight: "bold" }}>รายละเอียด</Text>
-                <Text style={styles.id_text}>-</Text>
+                <Text style={styles.id_text}>{product.description ?? "-"}</Text>
             </View>
         </ParallaxScrollView>
     );
@@ -91,6 +132,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: "bold",
+        lineHeight: 36,
     },
     id_text: {
         fontSize: 12,

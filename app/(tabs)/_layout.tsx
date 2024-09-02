@@ -28,10 +28,10 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="scanner"
                 options={{
-                    tabBarStyle: {display:'none'},
-                    title: "Cart",
+                    tabBarStyle: { display: "none" },
+                    title: "Scanner",
                     tabBarIcon: ({ color, focused }) => (
-                        <TabBarIcon name={focused ? "cart" : "cart-outline"} color={color} />
+                        <TabBarIcon name={focused ? "barcode" : "barcode-outline"} color={color} />
                     ),
                 }}
             />

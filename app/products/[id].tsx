@@ -3,6 +3,9 @@ import { View, StyleSheet, Image } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Text, IconButton, Button, MD2Colors as Colors } from "react-native-paper";
+import { useRouter } from "expo-router";
+import { useAppDispatch } from "../hooks";
+import { addItem } from "@/features/cart/cartSlice";
 
 type Product = {
     id: string;
@@ -13,15 +16,18 @@ type Product = {
 };
 
 export default function DetailsScreen() {
+    const rounter = useRouter();
+    const dispatch = useAppDispatch();
+
     const { id } = useLocalSearchParams();
     const [quantity, setQuantity] = useState(1);
 
     const product: Product = {
-        id: "885121554400",
-        name: "Sample Product",
+        id: id as string,
+        name: `Product ${id}`,
         buyPrice: 50,
         unitPrice: 70,
-        description: "This is a sample product.",
+        description: `This is a sample product. ${id}`,
     };
 
     return (
@@ -68,7 +74,18 @@ export default function DetailsScreen() {
                         icon={"cart"}
                         mode="contained"
                         buttonColor={Colors.green500}
-                        onPress={() => setQuantity(10)}
+                        onPress={() => {
+                            dispatch(
+                                addItem({
+                                    id: product.id,
+                                    name: product.name,
+                                    quantity: quantity,
+                                    unitPrice: product.unitPrice,
+                                    totalPrice: 0,
+                                })
+                            );
+                            rounter.back();
+                        }}
                     >
                         เพิ่มลงในตะกร้า
                     </Button>

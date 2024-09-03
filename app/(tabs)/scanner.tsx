@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Button, Dimensions, StatusBar } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { Text, View, StyleSheet, Button, Dimensions, StatusBar, Alert } from "react-native";
 import { CameraView, Camera, BarcodeScanningResult } from "expo-camera";
 import Svg, { Defs, ClipPath, G, Rect } from "react-native-svg";
+import { useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
 
 // We can use this to make the overlay fill the entire width
-var { width, height } = Dimensions.get('screen');
+var { width, height } = Dimensions.get("screen");
 var boxWidth: number = 300;
 var boxHeight: number = 150;
 
 export default function CameraScannerComponent() {
+    const router = useRouter();
     const [hasPermission, setHasPermission] = useState(false);
     const [scanned, setScanned] = useState(false);
 
@@ -21,9 +24,36 @@ export default function CameraScannerComponent() {
         getCameraPermissions();
     }, []);
 
+    // This hook runs when the screen comes into focus
+    useFocusEffect(
+        useCallback(() => {
+            // Fetch or reload your data here
+            setScanned(false);
+
+            return () => {
+                // Cleanup if necessary
+            };
+        }, [])
+    );
+
     const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
         setScanned(true);
-        alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+        Alert.alert(
+            "bardode scanned",
+            `Bar code with type ${type} and data ${data} has been scanned!`,
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => setScanned(false),
+                    style: "cancel",
+                },
+                {
+                    text: "Ok",
+                    onPress: () => router.navigate(`/products/${data}`),
+                    style: "default",
+                },
+            ]
+        );
     };
 
     if (hasPermission === null) {
@@ -38,7 +68,7 @@ export default function CameraScannerComponent() {
             <CameraView
                 onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
                 barcodeScannerSettings={{ barcodeTypes: ["ean13"] }}
-                style={{ flex: 1 ,zIndex:-3}}
+                style={{ flex: 1, zIndex: -3 }}
             />
             {scanned && (
                 <Button
@@ -61,14 +91,14 @@ export default function CameraScannerComponent() {
             >
                 นำบาร์โค้ดมาแสกนที่นี่
             </Text>
-            <Svg style={{ position: "absolute" ,zIndex:-2}}>
+            <Svg style={{ position: "absolute", zIndex: -2 }}>
                 <Defs>
                     <ClipPath id="clip">
                         <G scale="1">
                             <Rect width={width} height={height} />
                             <Rect
                                 x={width / 2 - boxWidth / 2}
-                                y={(height / 2 - boxHeight / 2 )- (StatusBar.currentHeight ?? 0)}
+                                y={height / 2 - boxHeight / 2 - (StatusBar.currentHeight ?? 0)}
                                 rx={24}
                                 ry={24}
                                 width={boxWidth}

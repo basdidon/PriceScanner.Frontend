@@ -1,14 +1,28 @@
 import { CartItem } from "@/features/cart/cartSlice";
-import { Text, View, StatusBar, Image } from "react-native";
-import { Avatar, Button, Card, IconButton } from "react-native-paper";
+import React from "react";
+import { Text, View, StatusBar, StyleSheet } from "react-native";
+import { Button, Divider, MD2Colors } from "react-native-paper";
+import Animated from "react-native-reanimated";
+import { useAppSelector } from "../hooks";
 
 export default function CartScreen() {
-    const cartItems: CartItem[] = [new CartItem("8857127442037", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2)];
-
+    const cartItems: CartItem[] = useAppSelector((state) => state.cart.items);
+    /*    const cartItems: CartItem[] = [
+        new CartItem("8857127442037", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
+        new CartItem("8857127442038", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 99),
+        new CartItem("8857127442039", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
+        new CartItem("8857127442040", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
+        new CartItem("8857127442041", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
+        new CartItem("8857127442042", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
+        new CartItem("8857127442043", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
+        new CartItem("8857127442044", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
+        new CartItem("8857127442045", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
+    ];
+*/
     return (
         <View style={{ flex: 1 }}>
             <View style={{ paddingTop: StatusBar.currentHeight, backgroundColor: "#f80" }}>
-                <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "bold" }}>
+                <Text style={{ textAlign: "center", fontSize: 24, fontWeight: "bold" }}>
                     ตะกร้าสินค้า
                 </Text>
             </View>
@@ -20,45 +34,101 @@ export default function CartScreen() {
                 </View>
             ) : (
                 <>
-                    {cartItems.map((item) => (
-                        <>
-                            <Card>
-                                <Card.Cover source={{ uri: "https://picsum.photos/700" }} />
-                                <Card.Title
-                                    title={item.name}
-                                    subtitle={item.id}
-                                    left={(props) => (
-                                        <Image
-                                            {...props}
-                                            source={{ uri: "https://picsum.photos/700" }}
-                                        />
-                                    )}
-                                    right={(props) => (
-                                        <IconButton
-                                            {...props}
-                                            icon="dots-vertical"
-                                            onPress={() => {}}
-                                        />
-                                    )}
-                                />
-                                <Card.Actions>
-                                    <Button>Cancel</Button>
-                                    <Button>Ok</Button>
-                                </Card.Actions>
-                            </Card>
-                            <Text>
-                                {item.name} ({item.quantity} * {item.unitPrice} ฿) :{" "}
-                                {item.totalPrice}{" "}
-                            </Text>
-                        </>
-                    ))}
+                    <Animated.ScrollView style={{ padding: 4 }}>
+                        {cartItems.map((item) => (
+                            <>
+                                <View
+                                    key={item.id}
+                                    style={{
+                                        alignItems: "center",
+                                        backgroundColor: "#fff",
+                                        flexDirection: "row",
+                                        paddingVertical: 12,
+                                    }}
+                                >
+                                    <Text style={styles.productQuantity}>x{item.quantity}</Text>
 
-                    <Text style={{ textAlign: "center", fontSize: 14, color: "#999" }}>
-                        มีสินค้าในตะกร้า {cartItems.length} ชิ้น ()
-                    </Text>
+                                    <View style={{ padding: 4, marginStart: 4, minHeight: 68 }}>
+                                        <Text style={styles.productTitle}>{item.name}</Text>
+                                        <Text style={styles.productUnitPrice}>
+                                            @{item.unitPrice}
+                                        </Text>
+                                    </View>
+                                    <Text
+                                        style={{
+                                            fontSize: 24,
+                                            textAlignVertical: "bottom",
+                                            fontWeight: "bold",
+                                            marginStart: "auto",
+                                            marginEnd: 16,
+                                        }}
+                                    >
+                                        {item.unitPrice * item.quantity}
+                                    </Text>
+                                </View>
+                                <Divider horizontalInset />
+                            </>
+                        ))}
+                    </Animated.ScrollView>
                 </>
             )}
-            <Image source={{ uri: "https://picsum.photos/700" }} width={240} height={240} />
+            <View
+                style={{
+                    flexDirection: "row",
+                    paddingHorizontal: 8,
+                    paddingVertical: 12,
+                    alignItems: "center",
+                    backgroundColor: "#fff",
+                    borderTopWidth: 1,
+                    borderTopColor: "#ddd",
+                }}
+            >
+                <View>
+                    <Text style={{ textAlign: "center", fontSize: 16 }}>
+                        {`ราคารวม (${cartItems.length} รายการ) :`}
+                    </Text>
+                    <Text style={{ fontSize: 32, fontWeight: "bold" }}>
+                        {cartItems.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0)}
+                    </Text>
+                </View>
+                <Button
+                    mode="contained"
+                    buttonColor={MD2Colors.green500}
+                    style={{ marginStart: "auto" }}
+                    onPress={() => console.log("checked")}
+                >
+                    <Text>ชำระเงิน</Text>
+                </Button>
+            </View>
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    productTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+    },
+    productUnitPrice: {
+        marginTop: "auto",
+        fontSize: 14,
+        fontWeight: "normal",
+    },
+    productQuantity: {
+        borderWidth: 1,
+        borderRadius: 4,
+        borderColor: "#999",
+        width: 32,
+        height: 32,
+        margin: 16,
+        textAlign: "center",
+        textAlignVertical: "center",
+        fontSize: 12,
+        fontWeight: "bold",
+    },
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        backgroundColor: "white", // White background for the entire screen
+    },
+});

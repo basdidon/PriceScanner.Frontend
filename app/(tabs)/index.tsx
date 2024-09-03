@@ -2,7 +2,6 @@ import { Link } from "expo-router";
 import { Text, View } from "react-native";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { increment, decrement } from "@/features/counter/counterSlice";
-import { IconCircleButton } from "@/components/IconCircleButton";
 import { IconButton, MD2Colors as Colors } from "react-native-paper";
 
 export default function Index() {

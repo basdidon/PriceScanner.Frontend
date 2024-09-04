@@ -1,9 +1,10 @@
 import { Link } from "expo-router";
 import { ActivityIndicator, Text, View } from "react-native";
+import { IconButton, MD2Colors as Colors, MD2Colors, Button } from "react-native-paper";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { increment, decrement } from "@/features/counter/counterSlice";
-import { IconButton, MD2Colors as Colors, Icon, MD2Colors } from "react-native-paper";
 import { useQuery } from "@tanstack/react-query";
+import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 
 const baseUrl = "http://192.168.1.23:5000";
 
@@ -11,15 +12,13 @@ export default function Index() {
     const count = useAppSelector((state) => state.counter.value);
     const dispatch = useAppDispatch();
 
-    const { isPending, data, isError } = useQuery({
+    const { isLoading, isPending, data, refetch, isFetching, isError, isSuccess } = useQuery({
         queryKey: ["repoData"],
         queryFn: () => fetch(baseUrl).then((res) => res.text()),
+        //refetchInterval: 10000, // Refetch every 10 seconds
     });
 
-    const productQuery = useQuery({
-        queryKey: ["product/"],
-        queryFn: () => fetch(baseUrl + "/api/products/8857127442037").then((res) => res.json()),
-    });
+    useRefreshOnFocus(refetch);
 
     return (
         <View
@@ -49,25 +48,32 @@ export default function Index() {
                 />
             </View>
             <Link
-                style={{ marginTop: 16 }}
+                style={{ marginTop: 16, fontSize: 24 }}
                 href={{
                     pathname: "/products/[id]",
-                    params: { id: "8051164586194" },
+                    params: { id: "8857127442037" },
                 }}
             >
-                View user details
+                <Button>
+                    <Text style={{ fontSize: 18 }}>Forest Drinking Water 350ml</Text>
+                </Button>
             </Link>
             <View style={{ flexDirection: "row" }}>
-                {isPending ? (
-                    <ActivityIndicator animating={isPending} color={MD2Colors.red800} />
-                ) : (
-                    <Icon source={isError ? "error" : "check"} size={24} />
-                )}
-                <Text style={{ marginStart: 8 }}>http profile : {data ?? "loading"}</Text>
+                <ActivityIndicator animating={isLoading} color={MD2Colors.red800} />
+                <Text>Loading</Text>
             </View>
-            <Text>{productQuery.data.barcode}</Text>
-            <Text>{productQuery.data.name}</Text>
-            <Text>{productQuery.data.price}</Text>
+            <View style={{ flexDirection: "row" }}>
+                <ActivityIndicator animating={isPending} color={MD2Colors.red800} />
+                <Text>Pending</Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+                <ActivityIndicator animating={isFetching} color={MD2Colors.red800} />
+                <Text>Fetching</Text>
+            </View>
+            <Text>{isError ? "error" : "not error"}</Text>
+            <Text>{isSuccess ? "success" : "not success"}</Text>
+            <Text style={{ marginStart: 8 }}>http profile : {data ?? "loading"}</Text>
+            <Button onPress={() => refetch()}> Refresh</Button>
         </View>
     );
 }

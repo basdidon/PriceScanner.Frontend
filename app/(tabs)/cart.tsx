@@ -1,24 +1,14 @@
 import { CartItem } from "@/features/cart/cartSlice";
 import React from "react";
-import { Text, View, StatusBar, StyleSheet } from "react-native";
+import { Text, View, StatusBar, StyleSheet, Pressable } from "react-native";
 import { Button, Divider, MD2Colors } from "react-native-paper";
 import Animated from "react-native-reanimated";
 import { useAppSelector } from "../hooks";
+import { router } from "expo-router";
 
 export default function CartScreen() {
     const cartItems: CartItem[] = useAppSelector((state) => state.cart.items);
-    /*    const cartItems: CartItem[] = [
-        new CartItem("8857127442037", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
-        new CartItem("8857127442038", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 99),
-        new CartItem("8857127442039", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
-        new CartItem("8857127442040", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
-        new CartItem("8857127442041", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
-        new CartItem("8857127442042", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
-        new CartItem("8857127442043", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
-        new CartItem("8857127442044", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
-        new CartItem("8857127442045", "น้ำดื่มฟอเรสต์ 350ม.ล.", 10, 2),
-    ];
-*/
+
     return (
         <View style={{ flex: 1 }}>
             <View style={{ paddingTop: StatusBar.currentHeight, backgroundColor: "#f80" }}>
@@ -37,6 +27,16 @@ export default function CartScreen() {
                     <Animated.ScrollView style={{ padding: 4 }}>
                         {cartItems.map((item) => (
                             <>
+                                <Pressable
+                                    onPress={() =>
+                                        router.navigate({
+                                            pathname: "/cart/[id]",
+                                            params: { id: item.id },
+                                        })
+                                    }
+                                >
+                                    <Text>Go</Text>
+                                </Pressable>
                                 <View
                                     key={item.id}
                                     style={{

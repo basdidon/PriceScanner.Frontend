@@ -59,6 +59,7 @@ export default function CameraScannerComponent() {
     if (hasPermission === null) {
         return <Text>Requesting for camera permission</Text>;
     }
+
     if (hasPermission === false) {
         return <Text>No access to camera</Text>;
     }

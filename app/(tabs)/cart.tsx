@@ -28,6 +28,7 @@ export default function CartScreen() {
                         {cartItems.map((item) => (
                             <>
                                 <Pressable
+                                    key={item.id}
                                     onPress={() =>
                                         router.navigate({
                                             pathname: "/cart/[id]",
@@ -35,38 +36,36 @@ export default function CartScreen() {
                                         })
                                     }
                                 >
-                                    <Text>Go</Text>
-                                </Pressable>
-                                <View
-                                    key={item.id}
-                                    style={{
-                                        alignItems: "center",
-                                        backgroundColor: "#fff",
-                                        flexDirection: "row",
-                                        paddingVertical: 12,
-                                    }}
-                                >
-                                    <Text style={styles.productQuantity}>x{item.quantity}</Text>
-
-                                    <View style={{ padding: 4, marginStart: 4, minHeight: 68 }}>
-                                        <Text style={styles.productTitle}>{item.name}</Text>
-                                        <Text style={styles.productUnitPrice}>
-                                            @{item.unitPrice}
-                                        </Text>
-                                    </View>
-                                    <Text
+                                    <View
                                         style={{
-                                            fontSize: 24,
-                                            textAlignVertical: "bottom",
-                                            fontWeight: "bold",
-                                            marginStart: "auto",
-                                            marginEnd: 16,
+                                            alignItems: "center",
+                                            backgroundColor: "#fff",
+                                            flexDirection: "row",
+                                            paddingVertical: 12,
                                         }}
                                     >
-                                        {item.unitPrice * item.quantity}
-                                    </Text>
-                                </View>
-                                <Divider horizontalInset />
+                                        <Text style={styles.productQuantity}>x{item.quantity}</Text>
+
+                                        <View style={{ padding: 4, marginStart: 4, minHeight: 68 }}>
+                                            <Text style={styles.productTitle}>{item.name}</Text>
+                                            <Text style={styles.productUnitPrice}>
+                                                @{item.unitPrice}
+                                            </Text>
+                                        </View>
+                                        <Text
+                                            style={{
+                                                fontSize: 24,
+                                                textAlignVertical: "bottom",
+                                                fontWeight: "bold",
+                                                marginStart: "auto",
+                                                marginEnd: 16,
+                                            }}
+                                        >
+                                            {item.unitPrice * item.quantity}
+                                        </Text>
+                                    </View>
+                                    <Divider horizontalInset />
+                                </Pressable>
                             </>
                         ))}
                     </Animated.ScrollView>

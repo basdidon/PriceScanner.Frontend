@@ -28,7 +28,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="scanner"
                 options={{
-                    tabBarStyle: { display: "none" },
+                    //tabBarStyle: { display: "none" },
                     title: "Scanner",
                     tabBarIcon: ({ color, focused }) => (
                         <TabBarIcon name={focused ? "barcode" : "barcode-outline"} color={color} />

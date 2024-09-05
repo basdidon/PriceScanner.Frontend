@@ -38,6 +38,8 @@ export default function CameraScannerComponent() {
 
     const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
         setScanned(true);
+        router.navigate(`/products/${data}`);
+        /*
         Alert.alert(
             "bardode scanned",
             `Bar code with type ${type} and data ${data} has been scanned!`,
@@ -53,7 +55,7 @@ export default function CameraScannerComponent() {
                     style: "default",
                 },
             ]
-        );
+        );*/
     };
 
     if (hasPermission === null) {

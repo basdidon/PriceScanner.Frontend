@@ -25,31 +25,30 @@ export const cartSlice = createSlice({
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {
-        addItem: (state, action: PayloadAction<CartItem>) => {
+        addItemAction: (state, action: PayloadAction<CartItem>) => {
             var cartItem = state.items.find((item) => item.id === action.payload.id);
 
             if (cartItem) throw new Error(`item(${action.payload.id}) already exists`);
 
             state.items = [...state.items, action.payload];
         },
-        setQuantity(state, action: PayloadAction<{ id: string; quantity: number }>) {
+        updateItemQuantityAction(state, action: PayloadAction<{ id: string; quantity: number }>) {
             var cartItem = state.items.find((item) => item.id === action.payload.id);
 
             if (!cartItem) throw new Error(`item(${action.payload.id}) not found`);
 
             cartItem.quantity = action.payload.quantity;
-            state.items = [...state.items];
         },
-        removeItem: (state, action: PayloadAction<{ id: string }>) => {
-            var idx = state.items.findIndex((item) => item.id === action.payload.id);
-            if (idx === -1) throw new Error(`item(${action.payload.id}) not found`);
+        removeItemAction: (state, action: PayloadAction<{ id: string }>) => {
+            var idToRemove = state.items.findIndex((item) => item.id === action.payload.id);
+            if (idToRemove === -1) throw new Error(`item(${action.payload.id}) not found`);
 
-            state.items = [...state.items.splice(idx, 1)];
+            state.items.splice(idToRemove, 1);
         },
     },
 });
 
-export const { addItem, setQuantity } = cartSlice.actions;
+export const { addItemAction, updateItemQuantityAction, removeItemAction } = cartSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectCount = (state: RootState) => state.counter.value;

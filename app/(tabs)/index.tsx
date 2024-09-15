@@ -6,15 +6,13 @@ import { increment, decrement } from "@/features/counter/counterSlice";
 import { useQuery } from "@tanstack/react-query";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 
-const baseUrl = "http://192.168.1.23:5000";
-
 export default function Index() {
     const count = useAppSelector((state) => state.counter.value);
     const dispatch = useAppDispatch();
 
     const { isLoading, isPending, data, refetch, isFetching, isError, isSuccess } = useQuery({
         queryKey: ["repoData"],
-        queryFn: () => fetch(baseUrl).then((res) => res.text()),
+        queryFn: () => fetch(process.env.EXPO_PUBLIC_API_URL ?? "").then((res) => res.text()),
         //refetchInterval: 10000, // Refetch every 10 seconds
     });
 
@@ -109,6 +107,9 @@ export default function Index() {
             {success}
             <Text style={{ marginStart: 8 }}>http profile : {data ?? "loading"}</Text>
             <Button onPress={() => refetch()}> Refresh</Button>
+            <Text>
+                {process.env.EXPO_PUBLIC_API_URL ?? "process.env.EXPO_PUBLIC_API_URL not found."}
+            </Text>
         </View>
     );
 }

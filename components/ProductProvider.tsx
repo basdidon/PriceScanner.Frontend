@@ -1,6 +1,7 @@
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { QueryObserverResult, RefetchOptions, useQuery } from "@tanstack/react-query";
 import React, { createContext, useContext, useMemo, useState, type PropsWithChildren } from "react";
+import { Text } from "react-native";
 
 type Props = PropsWithChildren<{
     id: string;
@@ -29,23 +30,28 @@ type ProductContextType = {
     ) => Promise<QueryObserverResult<Product | undefined, Error>>;
 };
 
-const baseUrl = "http://192.168.1.23:5000";
-
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 const getProduct = (id: string) => {
+    const productUrl = process.env.EXPO_PUBLIC_API_URL + `/products/?barcode=${id}`;
+    console.log(`fetched product: ${productUrl}`);
+
     try {
         console.log(`getProduct(${id})`);
-        return fetch(baseUrl + `/api/products/${id}`)
+        return fetch(productUrl)
             .then((res) => res.json())
             .then((jsonData) => {
+                // /products/?barcode can return more than one product we take first
+                const productJson = jsonData[0];
+
                 const product: Product = {
-                    id: jsonData.barcode,
-                    name: jsonData.name,
+                    id: productJson.barcode,
+                    name: productJson.name,
                     buyPrice: 0,
-                    unitPrice: jsonData.price,
+                    unitPrice: productJson.unitPrice,
                     description: "",
                 };
+                console.log(product);
                 return product;
             });
     } catch (err) {
@@ -70,6 +76,7 @@ const ProductProvider = ({ id, refreshOnFocus = false, children }: Props) => {
     return (
         <>
             <ProductContext.Provider value={productContext}>{children}</ProductContext.Provider>
+            {/*<Text>{process.env.EXPO_PUBLIC_API_URL + `/products/?barcode=${id}`}</Text>*/}
         </>
     );
 };

@@ -70,7 +70,7 @@ export default function CameraScannerComponent() {
         <View style={styles.container}>
             <CameraView
                 onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-                barcodeScannerSettings={{ barcodeTypes: ["ean13"] }}
+                barcodeScannerSettings={{ barcodeTypes: ["code39","ean13"] }}
                 style={{ flex: 1, zIndex: -3 }}
             />
             {scanned && (

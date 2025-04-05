@@ -20,7 +20,7 @@ export default function TabLayout() {
                 name="index"
                 options={{
                     title: "Home",
-                    tabBarIcon: ({ color, focused }) => (
+                    tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
                         <TabBarIcon name={focused ? "home" : "home-outline"} color={color} />
                     ),
                 }}
@@ -28,10 +28,20 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="scanner"
                 options={{
-                    tabBarStyle: {display:'none'},
-                    title: "Cart",
-                    tabBarIcon: ({ color, focused }) => (
-                        <TabBarIcon name={focused ? "cart" : "cart-outline"} color={color} />
+                    tabBarStyle: { display: "none" },
+                    title: "barcode",
+                    tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+                        <TabBarIcon name={focused ? "barcode" : "barcode-outline"} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="exposcanner"
+                options={{
+                    tabBarStyle: { display: "none" },
+                    title: "barcode",
+                    tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+                        <TabBarIcon name={focused ? "barcode" : "barcode-outline"} color={color} />
                     ),
                 }}
             />
@@ -39,7 +49,7 @@ export default function TabLayout() {
                 name="cart"
                 options={{
                     title: "Cart",
-                    tabBarIcon: ({ color, focused }) => (
+                    tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
                         <TabBarIcon name={focused ? "cart" : "cart-outline"} color={color} />
                     ),
                 }}

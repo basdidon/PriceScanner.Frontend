@@ -4,7 +4,7 @@ import { CameraView, Camera, BarcodeScanningResult } from "expo-camera";
 import Svg, { Defs, ClipPath, G, Rect } from "react-native-svg";
 
 // We can use this to make the overlay fill the entire width
-var { width, height } = Dimensions.get('screen');
+var { width, height } = Dimensions.get("screen");
 var boxWidth: number = 300;
 var boxHeight: number = 150;
 
@@ -38,7 +38,7 @@ export default function CameraScannerComponent() {
             <CameraView
                 onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
                 barcodeScannerSettings={{ barcodeTypes: ["ean13"] }}
-                style={{ flex: 1 ,zIndex:-3}}
+                style={{ flex: 1, zIndex: -3 }}
             />
             {scanned && (
                 <Button
@@ -61,14 +61,15 @@ export default function CameraScannerComponent() {
             >
                 นำบาร์โค้ดมาแสกนที่นี่
             </Text>
-            <Svg style={{ position: "absolute" ,zIndex:-2}}>
+
+            <Svg style={{ position: "absolute", zIndex: -2 }}>
                 <Defs>
                     <ClipPath id="clip">
                         <G scale="1">
                             <Rect width={width} height={height} />
                             <Rect
                                 x={width / 2 - boxWidth / 2}
-                                y={(height / 2 - boxHeight / 2 )- (StatusBar.currentHeight ?? 0)}
+                                y={height / 2 - boxHeight / 2 - (StatusBar.currentHeight ?? 0)}
                                 rx={24}
                                 ry={24}
                                 width={boxWidth}
@@ -94,6 +95,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: "center",
-        backgroundColor: "white", // White background for the entire screen
+        //backgroundColor: "white", // White background for the entire screen
+    },
+    message: {
+        textAlign: "center",
+        paddingBottom: 10,
     },
 });

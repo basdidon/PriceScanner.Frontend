@@ -1,11 +1,65 @@
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { View, Text, StyleSheet, Image, Button } from "react-native";
+import { Button, Divider, Icon, IconButton, Surface, Text } from "react-native-paper";
+import { View, StyleSheet, Image } from "react-native";
 
 export default function DetailsScreen() {
     const { id } = useLocalSearchParams();
     const [quantity, setQuantity] = useState(0);
+
+    const footerElement = (
+        <Surface elevation={3} style={{ padding: 12, gap: 8, margin: 8, borderRadius: 8 }}>
+            <View style={{ flexDirection: "row", paddingHorizontal: 12 }}>
+                <Text
+                    variant="titleLarge"
+                    style={{
+                        paddingTop: 4,
+                        //backgroundColor: "red",
+                        textAlignVertical: "top",
+                        marginEnd: "auto",
+                        lineHeight: 24,
+                    }}
+                >
+                    ราคารวม
+                </Text>
+                <Text
+                    variant="displayMedium"
+                    style={{ marginHorizontal: 8, textAlignVertical: "bottom" }}
+                >
+                    {quantity * 20}
+                </Text>
+            </View>
+            <Divider bold />
+            <View style={{ flexDirection: "row", gap: 8 }}>
+                <IconButton
+                    size={32}
+                    icon="minus"
+                    mode="contained-tonal"
+                    onPress={() => setQuantity(quantity - 1 < 1 ? 1 : quantity - 1)}
+                />
+                <Text variant="displaySmall" style={{ textAlignVertical: "center" }}>
+                    {quantity}
+                </Text>
+                <IconButton
+                    size={32}
+                    icon="plus"
+                    mode="contained-tonal"
+                    onPress={() => {
+                        setQuantity(quantity + 1);
+                    }}
+                />
+                <Button
+                    style={{ flexGrow: 1 }}
+                    mode="contained"
+                    labelStyle={{ fontSize: 20, lineHeight: 32 }}
+                    onPress={() => {}}
+                >
+                    เพิ่มลงในตะกร้า
+                </Button>
+            </View>
+        </Surface>
+    );
 
     return (
         <ParallaxScrollView
@@ -16,62 +70,48 @@ export default function DetailsScreen() {
                     style={styles.reactLogo}
                 />
             }
-            footerElement={
-                <View style={{ padding: 12, gap: 8 }}>
-                    <View style={{ flexDirection: "row" }}>
-                        <Text style={{ marginEnd: "auto", fontSize: 32 }}>20 ฿</Text>
-                        <Button
-                            title="-"
-                            onPress={() => setQuantity(quantity - 1 < 1 ? 1 : quantity - 1)}
-                        />
-                        <Text style={{ marginHorizontal: 8, fontSize: 32 }}>{quantity}</Text>
-                        <Button
-                            title="+"
-                            onPress={() => {
-                                setQuantity(quantity + 1);
-                            }}
-                        />
-                    </View>
-                    <Button title="เพิ่มลงตะกร้า" color={"forestgreen"} />
-                </View>
-            }
+            footerElement={footerElement}
         >
-            <View style={{ borderBottomColor: "#999", borderBottomWidth: 2, paddingBottom: 8 }}>
-                <Text style={styles.title}>น้ำยาล้างจาน ซันไลท์ กลิ่นมะนาว</Text>
-                <Text style={styles.id_text}>ID: {id}</Text>
-            </View>
-            <View style={{ flexDirection: "row" }}>
-                <Text style={{ fontSize: 18, textAlignVertical: "bottom" }}>ราคา / ชิ้น</Text>
-                <Text
-                    style={{
-                        marginStart: "auto",
-                        fontSize: 24,
-                        fontWeight: "bold",
-                        textAlignVertical: "bottom",
-                    }}
-                >
-                    20 ฿
-                </Text>
-            </View>
-            <View style={{ flexDirection: "row" }}>
-                <Text style={{ fontSize: 18, textAlignVertical: "bottom", color: "#999" }}>
-                    ราคาส่ง / ชิ้น
-                </Text>
-                <Text
-                    style={{
-                        marginStart: "auto",
-                        fontSize: 24,
-                        fontWeight: "bold",
-                        textAlignVertical: "bottom",
-                        color: "#999",
-                    }}
-                >
-                    {180 / 12} ฿
-                </Text>
-            </View>
-            <View style={{}}>
-                <Text style={{ fontSize: 20, fontWeight: "bold" }}>รายละเอียด</Text>
-                <Text style={styles.id_text}>-</Text>
+            <View>
+                <View style={{ borderBottomColor: "#999", borderBottomWidth: 2, paddingBottom: 8 }}>
+                    <Text variant="headlineLarge" style={{ lineHeight: 42 }}>
+                        น้ำยาล้างจาน ซันไลท์ กลิ่นมะนาว
+                    </Text>
+                    <Text style={styles.id_text}>ID: {id}</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                    <Text style={{ fontSize: 18, textAlignVertical: "bottom" }}>ราคา / ชิ้น</Text>
+                    <Text
+                        style={{
+                            marginStart: "auto",
+                            fontSize: 24,
+                            fontWeight: "bold",
+                            textAlignVertical: "bottom",
+                        }}
+                    >
+                        20 ฿
+                    </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                    <Text style={{ fontSize: 18, textAlignVertical: "bottom", color: "#999" }}>
+                        ราคาส่ง / ชิ้น
+                    </Text>
+                    <Text
+                        style={{
+                            marginStart: "auto",
+                            fontSize: 24,
+                            fontWeight: "bold",
+                            textAlignVertical: "bottom",
+                            color: "#999",
+                        }}
+                    >
+                        {180 / 12} ฿
+                    </Text>
+                </View>
+                <View>
+                    <Text style={{ fontSize: 20, fontWeight: "bold" }}>รายละเอียด</Text>
+                    <Text style={styles.id_text}>-</Text>
+                </View>
             </View>
         </ParallaxScrollView>
     );

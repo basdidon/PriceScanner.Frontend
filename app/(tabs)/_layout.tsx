@@ -26,6 +26,15 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="waterCatalog"
+                options={{
+                    title: "drinking",
+                    tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+                        <TabBarIcon name={focused ? "water" : "water-outline"} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="scanner"
                 options={{
                     tabBarStyle: { display: "none" },
@@ -39,9 +48,9 @@ export default function TabLayout() {
                 name="exposcanner"
                 options={{
                     tabBarStyle: { display: "none" },
-                    title: "barcode",
+                    title: "camera",
                     tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-                        <TabBarIcon name={focused ? "barcode" : "barcode-outline"} color={color} />
+                        <TabBarIcon name={focused ? "camera" : "camera-outline"} color={color} />
                     ),
                 }}
             />

@@ -15,7 +15,7 @@ export default function DetailsScreen() {
     const cartItem = cartItems.find((i) => i.id === id);
 
     const name = "น้ำยาล้างจาน ซันไลท์ กลิ่นมะนาว";
-    const price = 20;
+    const price = 29;
 
     return (
         <ParallaxScrollView
@@ -30,13 +30,14 @@ export default function DetailsScreen() {
                 <ProductCartActionBar
                     defaultQuantity={cartItem?.quantity ?? 1}
                     inCart={cartItems.some((i) => i.id === id)}
+                    unitPrice={price}
                     addToCart={(quantity) => {
-                        addToCart({ id: id.toString(), name, price, quantity });
                         router.push("/cart");
+                        addToCart({ id: id.toString(), name, price, quantity });
                     }}
                     updateQuantity={(quantity) => {
-                        setQuantityItem(id.toString(), quantity);
                         router.push("/cart");
+                        setQuantityItem(id.toString(), quantity);
                     }}
                 />
             }

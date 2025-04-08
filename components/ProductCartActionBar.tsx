@@ -1,20 +1,14 @@
 import React, { useState } from "react";
-import { View } from "react-native";
-import { Text, Button, Divider, IconButton, Surface } from "react-native-paper";
+import { View, StyleSheet } from "react-native";
+import { Text, IconButton, Surface } from "react-native-paper";
+import UpsertCartItemButton, { UpsertCartItemButtonProps } from "./UpsertCartItemButton";
 
-interface ProductCartActionBarProps {
-    defaultQuantity: number;
+type ProductCartActionBarProps = Omit<UpsertCartItemButtonProps, "quantity" | "update"> & {
     inCart: boolean;
-    addToCart: (quantity: number) => void;
-    updateQuantity: (quantity: number) => void;
-}
+    defaultQuantity: number;
+};
 
-const ProductCartActionBar = ({
-    defaultQuantity,
-    inCart,
-    addToCart,
-    updateQuantity,
-}: ProductCartActionBarProps) => {
+const ProductCartActionBar = ({ defaultQuantity, inCart, ...rest }: ProductCartActionBarProps) => {
     const [quantity, setQuantity] = useState<number>(defaultQuantity);
 
     return (
@@ -23,72 +17,42 @@ const ProductCartActionBar = ({
             style={{
                 padding: 12,
                 gap: 8,
-                margin: 8,
-                borderRadius: 8,
             }}
         >
-            <View style={{ flexDirection: "row", paddingHorizontal: 12 }}>
-                <Text
-                    variant="titleLarge"
-                    style={{
-                        paddingTop: 4,
-                        //backgroundColor: "red",
-                        textAlignVertical: "top",
-                        marginEnd: "auto",
-                        lineHeight: 24,
-                    }}
-                >
-                    ราคารวม
-                </Text>
-                <Text
-                    variant="displayMedium"
-                    style={{ marginHorizontal: 8, textAlignVertical: "bottom" }}
-                >
-                    {quantity * 20}
-                </Text>
-            </View>
-            <Divider bold />
-            <View style={{ flexDirection: "row", gap: 8 }}>
-                <IconButton
-                    size={32}
-                    icon="minus"
-                    mode="contained-tonal"
-                    disabled={quantity == 1}
-                    onPress={() => setQuantity(quantity - 1 < 1 ? 1 : quantity - 1)}
-                />
-                <Text variant="displaySmall" style={{ textAlignVertical: "center" }}>
-                    {quantity}
-                </Text>
-                <IconButton
-                    size={32}
-                    icon="plus"
-                    mode="contained-tonal"
-                    onPress={() => {
-                        setQuantity(quantity + 1);
-                    }}
-                />
-                {inCart ? (
-                    <Button
-                        style={{ flexGrow: 1 }}
-                        mode="contained"
-                        labelStyle={{ fontSize: 20, lineHeight: 32 }}
-                        onPress={() => updateQuantity(quantity)}
-                    >
-                        อัพเดตตะกร้า
-                    </Button>
-                ) : (
-                    <Button
-                        style={{ flexGrow: 1 }}
-                        mode="contained"
-                        labelStyle={{ fontSize: 20, lineHeight: 32 }}
-                        onPress={() => addToCart(quantity)}
-                    >
-                        เพิ่มลงในตะกร้า
-                    </Button>
-                )}
+            <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                <View style={{ flexDirection: "row", gap: 4 }}>
+                    <IconButton
+                        size={20}
+                        icon="minus"
+                        mode="contained-tonal"
+                        disabled={quantity == 1}
+                        onPress={() => setQuantity(quantity - 1 < 1 ? 1 : quantity - 1)}
+                    />
+                    <Text variant="headlineSmall" style={{ textAlignVertical: "center" }}>
+                        {quantity}
+                    </Text>
+                    <IconButton
+                        size={20}
+                        icon="plus"
+                        mode="contained-tonal"
+                        onPress={() => {
+                            setQuantity(quantity + 1);
+                        }}
+                    />
+                </View>
+                <UpsertCartItemButton update={inCart} quantity={quantity} {...rest} />
             </View>
         </Surface>
     );
 };
 
 export default ProductCartActionBar;
+
+const styles = StyleSheet.create({
+    onConfirmBtn: {
+        color: "white",
+    },
+    totalOnConfirmBtn: {
+        marginStart: "auto",
+    },
+});

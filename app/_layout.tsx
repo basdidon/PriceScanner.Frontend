@@ -1,9 +1,9 @@
 import { CartProvider } from "@/hooks/useCartContext";
 import { Stack } from "expo-router";
 
-import { MD3LightTheme, PaperProvider } from "react-native-paper";
+import { MD3LightTheme, PaperProvider, useTheme } from "react-native-paper";
 
-const theme = {
+export const appTheme = {
     ...MD3LightTheme, // or MD3DarkTheme
     // Specify custom property
     myOwnProperty: true,
@@ -11,6 +11,9 @@ const theme = {
     // Specify custom property in nested object
     colors: {
         ...MD3LightTheme.colors,
+        success: "#008000",
+        inverseSuccess: "#5BC236",
+        onSuccess: "#FFF",
         /*
         primary: "#1AA7EC",
         //onPrimary: "white",  // text on btn
@@ -28,9 +31,13 @@ const theme = {
         background: "#d6d2f8",*/
     },
 };
+
+export type AppTheme = typeof appTheme;
+export const useAppTheme = () => useTheme<AppTheme>();
+
 export default function RootLayout() {
     return (
-        <PaperProvider theme={theme}>
+        <PaperProvider theme={appTheme}>
             <CartProvider>
                 <Stack screenOptions={{ headerShown: false }}>
                     <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

@@ -16,7 +16,6 @@ export default function DetailsScreen() {
     const router = useRouter();
     const theme = useTheme();
 
-    //const { cartItems, addToCart, setQuantityItem } = useCart();
     const cartItem = cart.find((x) => x.id === id);
 
     const name = "น้ำยาล้างจาน ซันไลท์ กลิ่นมะนาว";

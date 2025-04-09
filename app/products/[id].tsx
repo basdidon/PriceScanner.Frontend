@@ -3,16 +3,21 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Divider, Text } from "react-native-paper";
 import { View, StyleSheet, Image } from "react-native";
 import ProductCartActionBar from "@/components/ProductCartActionBar";
-import { useCart } from "@/hooks/useCartContext";
 import { useTheme } from "react-native-paper";
+import { AppDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem, updateQuantity } from "@/store/cartSlice";
 
 export default function DetailsScreen() {
+    const cart = useSelector((state: RootState) => state.cart);
+    const dispatch = useDispatch<AppDispatch>();
+
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const theme = useTheme();
 
-    const { cartItems, addToCart, setQuantityItem } = useCart();
-    const cartItem = cartItems.find((i) => i.id === id);
+    //const { cartItems, addToCart, setQuantityItem } = useCart();
+    const cartItem = cart.find((x) => x.id === id);
 
     const name = "น้ำยาล้างจาน ซันไลท์ กลิ่นมะนาว";
     const price = 29;
@@ -29,15 +34,15 @@ export default function DetailsScreen() {
             footerElement={
                 <ProductCartActionBar
                     defaultQuantity={cartItem?.quantity ?? 1}
-                    inCart={cartItems.some((i) => i.id === id)}
+                    inCart={cart.some((i) => i.id === id)}
                     unitPrice={price}
                     addToCart={(quantity) => {
                         router.push("/cart");
-                        addToCart({ id: id.toString(), name, price, quantity });
+                        dispatch(addItem({ id: id.toString(), name, price, quantity }));
                     }}
                     updateQuantity={(quantity) => {
                         router.push("/cart");
-                        setQuantityItem(id.toString(), quantity);
+                        dispatch(updateQuantity({ id: id.toString(), newValue: quantity }));
                     }}
                 />
             }

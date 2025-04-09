@@ -2,32 +2,35 @@ import { View, StatusBar, StyleSheet, ScrollView } from "react-native";
 import { useTheme, Surface } from "react-native-paper";
 import React from "react";
 import WaterCatalogBrandCard from "@/components/waterCatalog/WaterCatalogBrandCard";
-import { WaterCatalogSeed } from "@/constants/WaterCatalogSeed";
 import WaterCatalogSubmitButton from "@/components/waterCatalog/WaterCatalogSubmitButton";
+import { useWaterCatalog } from "@/hooks/contexts/useCatalogContext";
 
 export default function WaterCatalog() {
     const theme = useTheme();
-    const catalog = WaterCatalogSeed;
+    const { catalogBrands } = useWaterCatalog();
 
     return (
         <>
             <View
                 style={{
                     flex: 1,
-                    padding: 8,
                     gap: 8,
                     backgroundColor: theme.colors.background,
                     paddingTop: StatusBar.currentHeight,
                 }}
             >
-                <ScrollView>
-                    {catalog.map((x, idx) => (
-                        <WaterCatalogBrandCard key={idx} {...x} />
+                <ScrollView style={{ padding: 8 }}>
+                    {catalogBrands.map((x, idx) => (
+                        <WaterCatalogBrandCard
+                            key={idx}
+                            brand={x.name}
+                            itemIds={x.items.map((x) => x.id)}
+                        />
                     ))}
                 </ScrollView>
             </View>
             <Surface>
-                <WaterCatalogSubmitButton totalQuantity={1} totalPrice={0} onSubmit={() => {}} />
+                <WaterCatalogSubmitButton />
             </Surface>
         </>
     );

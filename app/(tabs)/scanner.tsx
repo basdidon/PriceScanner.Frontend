@@ -17,7 +17,6 @@ export default function CameraScannerComponent() {
             const { status } = await Camera.requestCameraPermissionsAsync();
             setHasPermission(status === "granted");
         };
-
         getCameraPermissions();
     }, []);
 

@@ -1,17 +1,17 @@
 import { localImageMap } from "@/constants/LocalImageMap";
-import { useState } from "react";
+import { useWaterCatalog } from "@/hooks/contexts/useCatalogContext";
 import { View, Image } from "react-native";
 import { Card, IconButton, Text } from "react-native-paper";
-
+/*
 export interface WaterBrandCardListItemProps {
     id: string;
-    label: string;
-    packSize: number;
-    price: number;
-}
-const WaterBrandCardListItem = ({ id, label, packSize, price }: WaterBrandCardListItemProps) => {
+}*/
+const WaterBrandCardListItem = ({ id }: { id: string }) => {
     const localSource = localImageMap[id];
-    const [quantity, setQuantity] = useState<number>(0);
+    const { getItem, getQuantity, setQuantity } = useWaterCatalog();
+    const item = getItem(id);
+    const quantity = getQuantity(id);
+    //const [quantity, setQuantity] = useState<number>(0);
 
     return (
         <>
@@ -38,10 +38,10 @@ const WaterBrandCardListItem = ({ id, label, packSize, price }: WaterBrandCardLi
                             }}
                         >
                             <Text variant="titleLarge" style={{ marginStart: 8 }}>
-                                {label}
+                                {item?.label}
                             </Text>
                             <Text variant="labelSmall" style={{ marginStart: 8 }}>
-                                QTY: {packSize}
+                                QTY: {item?.packSize}
                             </Text>
                         </View>
                         <Text
@@ -52,7 +52,7 @@ const WaterBrandCardListItem = ({ id, label, packSize, price }: WaterBrandCardLi
                                 marginEnd: "auto",
                             }}
                         >
-                            ฿{price}
+                            ฿{item?.unitPrice}
                         </Text>
                     </View>
                     <IconButton
@@ -60,14 +60,14 @@ const WaterBrandCardListItem = ({ id, label, packSize, price }: WaterBrandCardLi
                         mode="outlined"
                         icon={"minus"}
                         disabled={quantity <= 0}
-                        onPress={() => setQuantity(quantity - 1 < 0 ? 0 : quantity - 1)}
+                        onPress={() => setQuantity(id, quantity - 1 < 0 ? 0 : quantity - 1)}
                     />
                     <Text variant="headlineSmall">{quantity}</Text>
                     <IconButton
                         size={12}
                         mode="outlined"
                         icon={"plus"}
-                        onPress={() => setQuantity(quantity + 1)}
+                        onPress={() => setQuantity(id, quantity + 1)}
                     />
                 </View>
             </Card.Content>

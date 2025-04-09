@@ -1,26 +1,20 @@
 import { AppTheme } from "@/app/_layout";
+import { useWaterCatalog } from "@/hooks/contexts/useCatalogContext";
 import { StyleSheet, TouchableHighlight, View } from "react-native";
 import { Badge, Text, useTheme } from "react-native-paper";
 
-interface WaterCatalogSubmitButtonProps {
-    totalQuantity: number;
-    totalPrice: number;
-    onSubmit: () => void;
-}
-
-const WaterCatalogSubmitButton = ({
-    totalQuantity,
-    totalPrice,
-    onSubmit,
-}: WaterCatalogSubmitButtonProps) => {
+const WaterCatalogSubmitButton = () => {
     const theme = useTheme<AppTheme>();
+    const { getTotalQuantity, getTotalPrice } = useWaterCatalog();
+    const totalQuantity = getTotalQuantity();
+    const totalPrice = getTotalPrice();
 
     return (
         <>
             <TouchableHighlight
                 underlayColor={theme.colors.inverseSuccess}
                 style={[styles.btn, { backgroundColor: theme.colors.success }]}
-                onPress={onSubmit}
+                onPress={() => {}}
                 disabled={totalQuantity <= 0}
             >
                 <View style={{ flexDirection: "row", alignItems: "center" }}>

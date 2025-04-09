@@ -1,12 +1,12 @@
 import React from "react";
 import { Card } from "react-native-paper";
-import WaterBrandCardListItem, { WaterBrandCardListItemProps } from "./WaterBrandCardListItem";
+import WaterBrandCardListItem from "./WaterBrandCardListItem";
 
 export interface WaterCatalogBrandCardProps {
     brand: string;
-    items: WaterBrandCardListItemProps[];
+    itemIds: string[];
 }
-const WaterCatalogBrandCard = ({ brand, items }: WaterCatalogBrandCardProps) => {
+const WaterCatalogBrandCard = ({ brand, itemIds }: WaterCatalogBrandCardProps) => {
     return (
         <Card style={{ margin: 4 }}>
             <Card.Title
@@ -14,8 +14,8 @@ const WaterCatalogBrandCard = ({ brand, items }: WaterCatalogBrandCardProps) => 
                 titleVariant="headlineSmall"
                 titleStyle={{ fontWeight: "bold" }}
             />
-            {items.map((x) => (
-                <WaterBrandCardListItem key={x.id} {...x} />
+            {itemIds.map((x) => (
+                <WaterBrandCardListItem key={x} id={x} />
             ))}
         </Card>
     );

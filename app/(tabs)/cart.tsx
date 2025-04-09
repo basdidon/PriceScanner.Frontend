@@ -1,14 +1,19 @@
-import { useCart } from "@/hooks/useCartContext";
 import React from "react";
 import { View, StatusBar } from "react-native";
 import { IconButton, Surface, Text } from "react-native-paper";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { clearCart } from "@/store/cartSlice";
 
 export default function CartScreen() {
-    const { cartItems, clearCart } = useCart();
+    const cart = useSelector((state: RootState) => state.cart);
+    const dispatch = useDispatch<AppDispatch>();
 
+    //const { cartItems, clearCart } = useCart();
+    /*
     if (!cartItems) {
         return <Text>Loading...</Text>;
-    }
+    }*/
     return (
         <View style={{ flex: 1 }}>
             <Surface style={{ paddingTop: StatusBar.currentHeight }}>
@@ -22,10 +27,10 @@ export default function CartScreen() {
                     icon={"trash-can"}
                     mode="contained"
                     style={{ position: "absolute", bottom: 0, right: 0 }}
-                    onPress={clearCart}
+                    onPress={() => dispatch(clearCart())}
                 />
             </Surface>
-            {cartItems.length === 0 ? (
+            {cart.length === 0 ? (
                 <View style={{ flex: 1, justifyContent: "center" }}>
                     <Text style={{ textAlign: "center", fontSize: 14, color: "#999" }}>
                         ดูเหมือนยังไม่มีสินค้าในตะกร้า
@@ -33,7 +38,7 @@ export default function CartScreen() {
                 </View>
             ) : (
                 <View style={{ flex: 1 }}>
-                    {cartItems.map((item) => (
+                    {cart.map((item) => (
                         <View key={item.id} style={{ marginTop: 8 }}>
                             <Text variant="bodySmall">{item.id}</Text>
                             <Text>{item.name}</Text>

@@ -1,12 +1,14 @@
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { Divider, Text } from "react-native-paper";
+import { ActivityIndicator, Button, Divider, Text } from "react-native-paper";
 import { View, StyleSheet, Image } from "react-native";
 import ProductCartActionBar from "@/components/ProductCartActionBar";
 import { useTheme } from "react-native-paper";
 import { AppDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem, updateQuantity } from "@/store/cartSlice";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProduct } from "@/api/product";
 
 export default function DetailsScreen() {
     const cart = useSelector((state: RootState) => state.cart);
@@ -16,10 +18,21 @@ export default function DetailsScreen() {
     const router = useRouter();
     const theme = useTheme();
 
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ["getProduct", id.toString()], // 123 is dynamic
+        queryFn: fetchProduct,
+    });
+
     const cartItem = cart.find((x) => x.id === id);
 
-    const name = "น้ำยาล้างจาน ซันไลท์ กลิ่นมะนาว";
-    const price = 29;
+    if (isLoading) return <ActivityIndicator />;
+    if (error)
+        return (
+            <>
+                <Text>Error: {error.message}</Text>
+                <Button onPress={() => refetch()}>Reload</Button>
+            </>
+        );
 
     return (
         <ParallaxScrollView
@@ -34,10 +47,17 @@ export default function DetailsScreen() {
                 <ProductCartActionBar
                     defaultQuantity={cartItem?.quantity ?? 1}
                     inCart={cart.some((i) => i.id === id)}
-                    unitPrice={price}
+                    unitPrice={data?.unitPrice ?? 0}
                     addToCart={(quantity) => {
                         router.push("/cart");
-                        dispatch(addItem({ id: id.toString(), name, price, quantity }));
+                        dispatch(
+                            addItem({
+                                id: id.toString(),
+                                name: data?.name ?? "",
+                                price: data?.unitPrice ?? 0,
+                                quantity,
+                            })
+                        );
                     }}
                     updateQuantity={(quantity) => {
                         router.push("/cart");
@@ -49,7 +69,7 @@ export default function DetailsScreen() {
             <View style={{ backgroundColor: theme.colors.background }}>
                 <View style={{ paddingBottom: 8 }}>
                     <Text variant="headlineLarge" style={{ lineHeight: 42 }}>
-                        {name}
+                        {data?.name ?? ""}
                     </Text>
                     <Text variant="labelSmall" style={styles.id_text}>
                         ID: {id}
@@ -67,7 +87,7 @@ export default function DetailsScreen() {
                         variant="titleLarge"
                         style={{ textAlignVertical: "bottom", lineHeight: 24, fontWeight: "bold" }}
                     >
-                        {price} .-
+                        {data?.unitPrice ?? 0} .-
                     </Text>
                 </View>
                 <View style={{ marginTop: 12 }}>

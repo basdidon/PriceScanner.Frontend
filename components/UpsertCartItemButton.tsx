@@ -1,4 +1,4 @@
-import { useAppTheme } from "@/app/_layout";
+import { useAppTheme } from "@/constants/appTheme";
 import React from "react";
 import { View, StyleSheet, TouchableHighlight } from "react-native";
 import { Text } from "react-native-paper";

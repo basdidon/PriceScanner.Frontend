@@ -10,30 +10,13 @@ import {
     useTheme,
     Divider,
     FAB,
-    ActivityIndicator,
 } from "react-native-paper";
 import { useState } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import { useQuery } from "@tanstack/react-query";
-
-const fetchData = async () => {
-    const res = await fetch("https://jsonplaceholder.typicode.com/posts/1");
-    if (!res.ok) throw new Error("Network response was not ok");
-    return res.json();
-};
-
 export default function Index() {
     const theme = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
-
-    const { data, isLoading, error } = useQuery({
-        queryKey: ["post"],
-        queryFn: fetchData,
-    });
-
-    if (isLoading) return <ActivityIndicator />;
-    if (error) return <Text>Error: {error.message}</Text>;
 
     return (
         <>
@@ -126,7 +109,6 @@ export default function Index() {
                     >
                         go 8051164586194
                     </Button>
-                    <Text style={{ padding: 20 }}>{data.title}</Text>
                 </View>
             </View>
         </>

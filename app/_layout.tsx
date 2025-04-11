@@ -1,5 +1,4 @@
 import { WaterCatalogProvider } from "@/hooks/contexts/useCatalogContext";
-import { DiscountProvider } from "@/hooks/contexts/useDiscountContext";
 import { Stack } from "expo-router";
 import { Provider as StoreProvider } from "react-redux";
 import { store } from "@/store";
@@ -14,13 +13,11 @@ export default function RootLayout() {
         <StoreProvider store={store}>
             <QueryClientProvider client={queryClient}>
                 <PaperProvider theme={appTheme}>
-                    <DiscountProvider>
-                        <WaterCatalogProvider>
-                            <Stack screenOptions={{ headerShown: false }}>
-                                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                            </Stack>
-                        </WaterCatalogProvider>
-                    </DiscountProvider>
+                    <WaterCatalogProvider>
+                        <Stack screenOptions={{ headerShown: false }}>
+                            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        </Stack>
+                    </WaterCatalogProvider>
                 </PaperProvider>
             </QueryClientProvider>
         </StoreProvider>

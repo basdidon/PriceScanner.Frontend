@@ -1,21 +1,18 @@
 import React from "react";
 import { Card } from "react-native-paper";
 import WaterBrandCardListItem from "./WaterBrandCardListItem";
+import { WaterCatalogBrand } from "@/hooks/contexts/useCatalogContext";
 
-export interface WaterCatalogBrandCardProps {
-    brand: string;
-    itemIds: string[];
-}
-const WaterCatalogBrandCard = ({ brand, itemIds }: WaterCatalogBrandCardProps) => {
+const WaterCatalogBrandCard = ({ name, items }: WaterCatalogBrand) => {
     return (
         <Card style={{ margin: 4 }}>
             <Card.Title
-                title={brand}
+                title={name}
                 titleVariant="headlineSmall"
                 titleStyle={{ fontWeight: "bold" }}
             />
-            {itemIds.map((x) => (
-                <WaterBrandCardListItem key={x} id={x} />
+            {items.map((x, idx) => (
+                <WaterBrandCardListItem key={idx} {...x} />
             ))}
         </Card>
     );

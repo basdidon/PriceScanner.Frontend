@@ -1,12 +1,13 @@
+import { CalculateDiscount } from "@/utils/CaculateDiscount";
 import { createContext, ReactNode, useContext, useState } from "react";
-import { useDiscount } from "./useDiscountContext";
+//import { useDiscount } from "./useDiscountContext";
 
-interface WaterCatalogBrand {
+export interface WaterCatalogBrand {
     name: string;
     items: WaterCatalogItem[];
 }
 
-interface WaterCatalogItem {
+export interface WaterCatalogItem {
     id: string;
     label: string;
     packSize: number;
@@ -26,7 +27,7 @@ interface WaterCatalogContext {
 var WaterCatalogContext = createContext<WaterCatalogContext | undefined>(undefined);
 
 export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
-    const { getDiscount } = useDiscount();
+    //const { getDiscount } = useDiscount();
 
     const [catalogBrands, setCatalogBrand] = useState<WaterCatalogBrand[]>([
         {
@@ -146,7 +147,7 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
                 id: item.id,
                 quantity: item.quantity,
             }));
-        const discountAmount = getDiscount(itemsQuantity);
+        const discountAmount = CalculateDiscount(itemsQuantity);
         console.log(
             `-------------------------\ntotal:${totalPrice}\ndiscountAmount: ${discountAmount}\nnetTotal:${
                 totalPrice - discountAmount

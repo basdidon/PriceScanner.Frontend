@@ -21,11 +21,7 @@ export default function WaterCatalog() {
             >
                 <ScrollView style={{ padding: 8 }}>
                     {catalogBrands.map((x, idx) => (
-                        <WaterCatalogBrandCard
-                            key={idx}
-                            brand={x.name}
-                            itemIds={x.items.map((x) => x.id)}
-                        />
+                        <WaterCatalogBrandCard key={idx} {...x} />
                     ))}
                 </ScrollView>
             </View>

@@ -1,4 +1,4 @@
-import { AppTheme } from "@/app/_layout";
+import { AppTheme } from "@/constants/appTheme";
 import { useWaterCatalog } from "@/hooks/contexts/useCatalogContext";
 import { StyleSheet, TouchableHighlight, View } from "react-native";
 import { Badge, Text, useTheme } from "react-native-paper";

@@ -1,13 +1,19 @@
 import { fetchProduct } from "@/api/product";
 import { localImageMap } from "@/constants/LocalImageMap";
-import { useWaterCatalog, WaterCatalogItem } from "@/hooks/contexts/useCatalogContext";
+import { useWaterCatalog, DrinkingCatalogItem } from "@/hooks/contexts/useCatalogContext";
 import { RootState } from "@/store";
 import { useQuery } from "@tanstack/react-query";
 import { View, Image } from "react-native";
 import { ActivityIndicator, Button, Card, IconButton, Text } from "react-native-paper";
 import { useSelector } from "react-redux";
 
-const WaterBrandCardListItem = ({ id, quantity, unitPrice, label, packSize }: WaterCatalogItem) => {
+const WaterBrandCardListItem = ({
+    id,
+    quantity,
+    unitPrice,
+    label,
+    packSize,
+}: DrinkingCatalogItem) => {
     const localSource = localImageMap[id];
     const { getItem, getQuantity, setQuantity } = useWaterCatalog();
     const cart = useSelector((state: RootState) => state.cart);

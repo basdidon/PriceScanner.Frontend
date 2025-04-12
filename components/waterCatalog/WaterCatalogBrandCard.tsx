@@ -1,9 +1,9 @@
 import React from "react";
 import { Card } from "react-native-paper";
 import WaterBrandCardListItem from "./WaterBrandCardListItem";
-import { WaterCatalogBrand } from "@/hooks/contexts/useCatalogContext";
+import { DrinkingCatalogBrand } from "@/hooks/contexts/useCatalogContext";
 
-const WaterCatalogBrandCard = ({ name, items }: WaterCatalogBrand) => {
+const WaterCatalogBrandCard = ({ name, items }: DrinkingCatalogBrand) => {
     return (
         <Card style={{ margin: 4 }}>
             <Card.Title

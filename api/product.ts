@@ -1,7 +1,7 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
 
 export type Product = {
-    id: number;
+    id: string;
     barcode: string;
     name: string;
     unitPrice: number;

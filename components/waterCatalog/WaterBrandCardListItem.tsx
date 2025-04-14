@@ -1,38 +1,29 @@
-import { fetchProduct } from "@/api/product";
 import { localImageMap } from "@/constants/LocalImageMap";
 import { useWaterCatalog, DrinkingCatalogItem } from "@/hooks/contexts/useCatalogContext";
 import { RootState } from "@/store";
-import { useQuery } from "@tanstack/react-query";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import { View, Image } from "react-native";
-import { ActivityIndicator, Button, Card, IconButton, Text } from "react-native-paper";
+import { Card, IconButton, Text } from "react-native-paper";
 import { useSelector } from "react-redux";
 
-const WaterBrandCardListItem = ({
-    id,
-    quantity,
-    unitPrice,
-    label,
-    packSize,
-}: DrinkingCatalogItem) => {
-    const localSource = localImageMap[id];
+const WaterBrandCardListItem = ({ id, barcode, label, packSize }: DrinkingCatalogItem) => {
+    const localSource = localImageMap[barcode];
     const { getItem, getQuantity, setQuantity } = useWaterCatalog();
     const cart = useSelector((state: RootState) => state.cart);
-    const cartItem = cart.find((x) => x.id === id);
 
-    //const [quantity, setQuantity] = useState<number>(cartItem?.quantity ?? 0);
-    const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ["getProduct", id],
-        queryFn: fetchProduct,
-    });
+    useFocusEffect(
+        // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
+        useCallback(() => {
+            setQuantity(id ?? "", cart.find((x) => x.id === id)?.quantity ?? 0);
+            return () => {};
+        }, [])
+    );
+    if (!id) {
+        return <></>;
+    }
 
-    if (isLoading) return <ActivityIndicator />;
-    if (error)
-        return (
-            <>
-                <Text>Error: {error.message}</Text>
-                <Button onPress={() => refetch()}>Reload</Button>
-            </>
-        );
+    const quantity = getQuantity(id);
 
     return (
         <>
@@ -73,7 +64,7 @@ const WaterBrandCardListItem = ({
                                 marginEnd: "auto",
                             }}
                         >
-                            ฿{data?.unitPrice ?? 0}
+                            ฿{getItem(id)?.unitPrice ?? 0}
                         </Text>
                     </View>
                     <IconButton

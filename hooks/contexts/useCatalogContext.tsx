@@ -1,15 +1,19 @@
 import { Product } from "@/api/product";
+import { AppDispatch, RootState } from "@/store";
 import { CalculateDiscount } from "@/utils/CaculateDiscount";
 import { createContext, ReactNode, useContext, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem, updateQuantity, removeItem } from "@/store/cartSlice";
 
 export interface DrinkingCatalogBrand {
     name: string;
     items: DrinkingCatalogItem[];
 }
 
-type PartialProduct = Partial<Omit<Product, "id">> & { id: string }; // make all properties optional except id
+type PartialProduct = Partial<Product>; // make all properties optional
 
 export type DrinkingCatalogItem = PartialProduct & {
+    barcode: string;
     label: string;
     packSize: number;
     quantity: number;
@@ -23,69 +27,71 @@ interface DrinkingCatalogContext {
     getTotalQuantity: () => number;
     getTotalPrice: () => number;
     updateCatalogPrices: () => void;
+    SetSeletedItemsToCart: () => void;
 }
 
 var WaterCatalogContext = createContext<DrinkingCatalogContext | undefined>(undefined);
 
 export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
-    //const { getDiscount } = useDiscount();
+    const cart = useSelector((state: RootState) => state.cart);
+    const dispatch = useDispatch<AppDispatch>();
     const [catalogBrands, setCatalogBrand] = useState<DrinkingCatalogBrand[]>([
         {
             name: "น้ำดื่ม ตราสิงห์",
             items: [
                 {
-                    id: "8850999002675",
+                    barcode: "8850999002675",
                     label: "330 ml.",
                     packSize: 12,
                     quantity: 0,
                 },
                 {
-                    id: "8850999321028",
+                    barcode: "8850999321028",
                     label: "600 ml.",
                     packSize: 12,
                     quantity: 0,
                 },
-                { id: "8850999320021", label: "1500 ml.", packSize: 6, quantity: 0 },
+                { barcode: "8850999320021", label: "1500 ml.", packSize: 6, quantity: 0 },
             ],
         },
         {
             name: "น้ำดื่ม ตราคริสตัล",
             items: [
                 {
-                    id: "8851952150808",
+                    barcode: "8851952150808",
                     label: "350 ml.",
                     packSize: 12,
                     quantity: 0,
                 },
-                { id: "8851952150789", label: "600 ml.", packSize: 12, quantity: 0 },
-                { id: "8851952150796", label: "1500 ml.", packSize: 6, quantity: 0 },
+                { barcode: "8851952150789", label: "600 ml.", packSize: 12, quantity: 0 },
+                { barcode: "8851952150796", label: "1500 ml.", packSize: 6, quantity: 0 },
             ],
         },
         {
             name: "น้ำดื่ม ตราเนสท์เล่",
             items: [
-                { id: "8850127063929", label: "330 ml.", packSize: 12, quantity: 0 },
-                { id: "8850124003874", label: "600 ml.", packSize: 12, quantity: 0 },
-                { id: "8850124003843", label: "1500 ml.", packSize: 6, quantity: 0 },
+                { barcode: "8850127063929", label: "330 ml.", packSize: 12, quantity: 0 },
+                { barcode: "8850124003874", label: "600 ml.", packSize: 12, quantity: 0 },
+                { barcode: "8850124003843", label: "1500 ml.", packSize: 6, quantity: 0 },
             ],
         },
         {
             name: "น้ำดื่ม ตราฟอเรสต์",
             items: [
                 {
-                    id: "18857127442034",
+                    barcode: "18857127442034",
                     label: "350 ml.",
                     packSize: 12,
                     quantity: 0,
                 },
                 {
-                    id: "18857127442027",
+                    barcode: "18857127442027",
                     label: "600 ml.",
                     packSize: 12,
                     quantity: 0,
                 },
                 {
-                    id: "18857127442010",
+                    barcode: "18857127442010",
                     label: "1500 ml.",
                     packSize: 6,
                     quantity: 0,
@@ -96,7 +102,7 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
 
     const getItem = (id: string) => {
         for (const brand of catalogBrands) {
-            const item = brand.items.find((i) => i.id === id);
+            const item = brand.items.find((i) => i.barcode === id);
             if (item) return item;
         }
         return undefined;
@@ -104,13 +110,14 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
 
     const getQuantity = (id: string) => {
         for (const brand of catalogBrands) {
-            const item = brand.items.find((i) => i.id === id);
+            const item = brand.items.find((i) => i.barcode === id);
             if (item) return item.quantity;
         }
         return 0;
     };
 
     const setQuantity = (id: string, newValue: number) => {
+        console.log(`set quantity [${id}] to ${newValue}`);
         setCatalogBrand((prevBrands) =>
             prevBrands.map((brand) => ({
                 ...brand,
@@ -140,7 +147,7 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
             .flatMap((brand) => brand.items)
             .filter((item) => item.quantity > 0)
             .map((item) => ({
-                id: item.id,
+                id: item.id ?? "",
                 quantity: item.quantity,
             }));
         const discountAmount = CalculateDiscount(itemsQuantity);
@@ -153,12 +160,21 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const updateCatalogPrices = async () => {
+        console.log("update price");
         const updatedBrands = await Promise.all(
             catalogBrands.map(async (brand) => {
                 const updatedItems = await Promise.all(
                     brand.items.map(async (item) => {
-                        const product = await fetchProductById(item.id);
-                        return product ? { ...item, unitPrice: product.unitPrice } : item;
+                        const product = await fetchProductById(item.barcode);
+                        return product
+                            ? {
+                                  ...item,
+                                  id: product.id,
+                                  barcode: product.barcode,
+                                  name: product.name,
+                                  unitPrice: product.unitPrice,
+                              }
+                            : item;
                     })
                 );
                 return { ...brand, items: updatedItems };
@@ -176,6 +192,23 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
     const SetSeletedItemsToCart = () => {
         for (const brand of catalogBrands) {
             for (const item of brand.items) {
+                if (item.quantity > 0) {
+                    const cartItem = cart.find((x) => x.id == item.barcode);
+                    if (cartItem) {
+                        dispatch(updateQuantity({ id: item.barcode, newValue: item.quantity }));
+                    } else {
+                        dispatch(
+                            addItem({
+                                id: item.id ?? "",
+                                name: item.name ?? "",
+                                quantity: item.quantity,
+                                price: item.unitPrice ?? 0,
+                            })
+                        );
+                    }
+                } else {
+                    dispatch(removeItem(item.barcode));
+                }
             }
         }
     };
@@ -190,6 +223,7 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
                 getTotalQuantity,
                 getTotalPrice,
                 updateCatalogPrices,
+                SetSeletedItemsToCart,
             }}
         >
             {children}

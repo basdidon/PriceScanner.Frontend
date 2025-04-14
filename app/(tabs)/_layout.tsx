@@ -1,9 +1,11 @@
 import { Tabs } from "expo-router";
+//import { Tabs, TabList, TabTrigger, TabSlot } from "expo-router/ui";
 import React from "react";
 
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { Text } from "react-native-paper";
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
@@ -29,7 +31,7 @@ export default function TabLayout() {
                 name="drinkingCatalog"
                 options={{
                     title: "drinking",
-
+                    //href: "/drinkingCatalog",
                     tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
                         <TabBarIcon name={focused ? "water" : "water-outline"} color={color} />
                     ),

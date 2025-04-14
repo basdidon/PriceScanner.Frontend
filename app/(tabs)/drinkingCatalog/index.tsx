@@ -1,14 +1,27 @@
 import { View, StatusBar, StyleSheet, ScrollView } from "react-native";
 import { useTheme, Surface } from "react-native-paper";
-import React from "react";
+import React, { useCallback } from "react";
 import WaterCatalogBrandCard from "@/components/waterCatalog/WaterCatalogBrandCard";
 import WaterCatalogSubmitButton from "@/components/waterCatalog/WaterCatalogSubmitButton";
 import { useWaterCatalog } from "@/hooks/contexts/useCatalogContext";
+import { useFocusEffect } from "expo-router";
 
 export default function WaterCatalog() {
     const theme = useTheme();
-    const { catalogBrands } = useWaterCatalog();
+    const { catalogBrands, updateCatalogPrices } = useWaterCatalog();
 
+    useFocusEffect(
+        // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
+        useCallback(() => {
+            // Invoked whenever the route is focused.
+            console.log("Hello, I'm focused!");
+            updateCatalogPrices();
+            // Return function is invoked whenever the route gets out of focus.
+            return () => {
+                console.log("This route is now unfocused.");
+            };
+        }, [])
+    );
     return (
         <>
             <View

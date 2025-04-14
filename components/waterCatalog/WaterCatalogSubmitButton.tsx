@@ -5,7 +5,7 @@ import { Badge, Text, useTheme } from "react-native-paper";
 
 const WaterCatalogSubmitButton = () => {
     const theme = useTheme<AppTheme>();
-    const { getTotalQuantity, getTotalPrice } = useWaterCatalog();
+    const { getTotalQuantity, getTotalPrice, SetSeletedItemsToCart } = useWaterCatalog();
     const totalQuantity = getTotalQuantity();
     const totalPrice = getTotalPrice();
 
@@ -14,7 +14,7 @@ const WaterCatalogSubmitButton = () => {
             <TouchableHighlight
                 underlayColor={theme.colors.inverseSuccess}
                 style={[styles.btn, { backgroundColor: theme.colors.success }]}
-                onPress={() => {}}
+                onPress={() => SetSeletedItemsToCart()}
                 disabled={totalQuantity <= 0}
             >
                 <View style={{ flexDirection: "row", alignItems: "center" }}>

@@ -1,5 +1,5 @@
 import { localImageMap } from "@/constants/LocalImageMap";
-import { useWaterCatalog, DrinkingCatalogItem } from "@/hooks/contexts/useCatalogContext";
+import { DrinkingCatalogItem, useDrinkingCatalog } from "@/hooks/contexts/useCatalogContext";
 import { RootState } from "@/store";
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
@@ -7,23 +7,26 @@ import { View, Image } from "react-native";
 import { Card, IconButton, Text } from "react-native-paper";
 import { useSelector } from "react-redux";
 
-const WaterBrandCardListItem = ({ id, barcode, label, packSize }: DrinkingCatalogItem) => {
+const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogItem) => {
     const localSource = localImageMap[barcode];
-    const { getItem, getQuantity, setQuantity } = useWaterCatalog();
+    const { getQuantity, setQuantity, getProductByBarcode } = useDrinkingCatalog();
     const cart = useSelector((state: RootState) => state.cart);
 
     useFocusEffect(
         // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
         useCallback(() => {
-            setQuantity(id ?? "", cart.find((x) => x.id === id)?.quantity ?? 0);
+            const cartItem = cart.find((x) => x.barcode === barcode);
+            setQuantity(barcode, cartItem?.quantity ?? 0);
             return () => {};
-        }, [])
+        }, [cart])
     );
-    if (!id) {
+
+    const quantity = getQuantity(barcode);
+    const product = getProductByBarcode(barcode);
+
+    if (!product) {
         return <></>;
     }
-
-    const quantity = getQuantity(id);
 
     return (
         <>
@@ -64,22 +67,22 @@ const WaterBrandCardListItem = ({ id, barcode, label, packSize }: DrinkingCatalo
                                 marginEnd: "auto",
                             }}
                         >
-                            ฿{getItem(id)?.unitPrice ?? 0}
+                            ฿{product.unitPrice}
                         </Text>
                     </View>
                     <IconButton
                         size={12}
                         mode="outlined"
                         icon={"minus"}
-                        disabled={getQuantity(id) <= 0}
-                        onPress={() => setQuantity(id, quantity - 1 < 0 ? 0 : quantity - 1)}
+                        disabled={quantity <= 0}
+                        onPress={() => setQuantity(barcode, quantity - 1 < 0 ? 0 : quantity - 1)}
                     />
                     <Text variant="headlineSmall">{quantity}</Text>
                     <IconButton
                         size={12}
                         mode="outlined"
                         icon={"plus"}
-                        onPress={() => setQuantity(id, quantity + 1)}
+                        onPress={() => setQuantity(barcode, quantity + 1)}
                     />
                 </View>
             </Card.Content>

@@ -1,10 +1,10 @@
-import { CartItem } from "@/hooks/contexts/useCartContext";
+import { CartItem } from "@/store/cartSlice";
 import { View } from "react-native";
 import { Card, Text } from "react-native-paper";
 
 const CartItemCard = (item: CartItem) => {
     return (
-        <Card key={item.id} style={{ margin: 8, padding: 0 }}>
+        <Card key={item.id} style={{ margin: 8, marginVertical: 2, padding: 0 }}>
             <Card.Content style={{ margin: 0, padding: 0 }}>
                 <View style={{ flexDirection: "row" }}>
                     <View
@@ -21,9 +21,12 @@ const CartItemCard = (item: CartItem) => {
                         <Text variant="titleMedium" numberOfLines={2} style={{}}>
                             {item.name}
                         </Text>
+                        {/*
                         <Text variant="labelSmall">{item.id}</Text>
+                        <Text variant="labelSmall">{item.barcode}</Text>
+                        */}
                         <Text style={{ marginTop: 4 }} variant="labelLarge">
-                            @ {item.price}
+                            @ {item.unitPrice}
                         </Text>
                     </View>
 
@@ -39,7 +42,7 @@ const CartItemCard = (item: CartItem) => {
                         }}
                     >
                         <Text variant="displaySmall">{item.quantity}</Text>
-                        <Text variant="titleSmall">฿ {item.price * item.quantity}</Text>
+                        <Text variant="titleSmall">฿ {item.unitPrice * item.quantity}</Text>
                     </View>
                 </View>
             </Card.Content>

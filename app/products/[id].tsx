@@ -43,28 +43,7 @@ export default function DetailsScreen() {
                     style={styles.reactLogo}
                 />
             }
-            footerElement={
-                <ProductCartActionBar
-                    defaultQuantity={cartItem?.quantity ?? 1}
-                    inCart={cart.some((i) => i.id === id)}
-                    unitPrice={data?.unitPrice ?? 0}
-                    addToCart={(quantity) => {
-                        router.push("/cart");
-                        dispatch(
-                            addItem({
-                                id: id.toString(),
-                                name: data?.name ?? "",
-                                price: data?.unitPrice ?? 0,
-                                quantity,
-                            })
-                        );
-                    }}
-                    updateQuantity={(quantity) => {
-                        router.push("/cart");
-                        dispatch(updateQuantity({ id: id.toString(), newValue: quantity }));
-                    }}
-                />
-            }
+            footerElement={<ProductCartActionBar product={data!} />}
         >
             <View style={{ backgroundColor: theme.colors.background }}>
                 <View style={{ paddingBottom: 8 }}>

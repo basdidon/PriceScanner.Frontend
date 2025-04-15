@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { Text, IconButton, Surface } from "react-native-paper";
 import UpsertCartItemButton, { UpsertCartItemButtonProps } from "./UpsertCartItemButton";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
-type ProductCartActionBarProps = Omit<UpsertCartItemButtonProps, "quantity" | "update"> & {
-    inCart: boolean;
-    defaultQuantity: number;
-};
+type ProductCartActionBarProps = Omit<UpsertCartItemButtonProps, "quantity">;
 
-const ProductCartActionBar = ({ defaultQuantity, inCart, ...rest }: ProductCartActionBarProps) => {
-    const [quantity, setQuantity] = useState<number>(defaultQuantity);
+const ProductCartActionBar = ({ product }: ProductCartActionBarProps) => {
+    const cart = useSelector((state: RootState) => state.cart);
+    const cartItem = cart.find((x) => x.id === product.id);
+    const [quantity, setQuantity] = useState<number>(cartItem?.quantity ?? 1);
 
     return (
         <Surface
@@ -40,7 +41,7 @@ const ProductCartActionBar = ({ defaultQuantity, inCart, ...rest }: ProductCartA
                         }}
                     />
                 </View>
-                <UpsertCartItemButton update={inCart} quantity={quantity} {...rest} />
+                <UpsertCartItemButton quantity={quantity} product={product} />
             </View>
         </Surface>
     );

@@ -1,18 +1,17 @@
 import { Product } from "@/api/product";
 import { AppDispatch, RootState } from "@/store";
-import { CalculateDiscount } from "@/utils/CaculateDiscount";
+import { useCalculateDiscount } from "@/utils/CaculateDiscount";
 import { createContext, ReactNode, useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem, updateQuantity, removeItem } from "@/store/cartSlice";
+import { DrinkingCatalogSeed } from "@/constants/WaterCatalogSeed";
 
 export interface DrinkingCatalogBrand {
     name: string;
     items: DrinkingCatalogItem[];
 }
 
-type PartialProduct = Partial<Product>; // make all properties optional
-
-export type DrinkingCatalogItem = PartialProduct & {
+export type DrinkingCatalogItem = {
     barcode: string;
     label: string;
     packSize: number;
@@ -21,108 +20,52 @@ export type DrinkingCatalogItem = PartialProduct & {
 
 interface DrinkingCatalogContext {
     catalogBrands: DrinkingCatalogBrand[];
-    getItem: (id: string) => DrinkingCatalogItem | undefined;
-    getQuantity: (id: string) => number;
-    setQuantity: (id: string, newValue: number) => void;
+    getItem: (barcode: string) => DrinkingCatalogItem | undefined;
+    getProductByBarcode: (barcode: string) => Product | undefined;
+    getQuantity: (barcode: string) => number;
+    setQuantity: (barcode: string, newValue: number) => void;
     getTotalQuantity: () => number;
     getTotalPrice: () => number;
-    updateCatalogPrices: () => void;
+    fetchProducts: () => void;
     SetSeletedItemsToCart: () => void;
 }
 
-var WaterCatalogContext = createContext<DrinkingCatalogContext | undefined>(undefined);
+var DrinkingCatalogContext = createContext<DrinkingCatalogContext | undefined>(undefined);
 
 export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
     const cart = useSelector((state: RootState) => state.cart);
     const dispatch = useDispatch<AppDispatch>();
-    const [catalogBrands, setCatalogBrand] = useState<DrinkingCatalogBrand[]>([
-        {
-            name: "น้ำดื่ม ตราสิงห์",
-            items: [
-                {
-                    barcode: "8850999002675",
-                    label: "330 ml.",
-                    packSize: 12,
-                    quantity: 0,
-                },
-                {
-                    barcode: "8850999321028",
-                    label: "600 ml.",
-                    packSize: 12,
-                    quantity: 0,
-                },
-                { barcode: "8850999320021", label: "1500 ml.", packSize: 6, quantity: 0 },
-            ],
-        },
-        {
-            name: "น้ำดื่ม ตราคริสตัล",
-            items: [
-                {
-                    barcode: "8851952150808",
-                    label: "350 ml.",
-                    packSize: 12,
-                    quantity: 0,
-                },
-                { barcode: "8851952150789", label: "600 ml.", packSize: 12, quantity: 0 },
-                { barcode: "8851952150796", label: "1500 ml.", packSize: 6, quantity: 0 },
-            ],
-        },
-        {
-            name: "น้ำดื่ม ตราเนสท์เล่",
-            items: [
-                { barcode: "8850127063929", label: "330 ml.", packSize: 12, quantity: 0 },
-                { barcode: "8850124003874", label: "600 ml.", packSize: 12, quantity: 0 },
-                { barcode: "8850124003843", label: "1500 ml.", packSize: 6, quantity: 0 },
-            ],
-        },
-        {
-            name: "น้ำดื่ม ตราฟอเรสต์",
-            items: [
-                {
-                    barcode: "18857127442034",
-                    label: "350 ml.",
-                    packSize: 12,
-                    quantity: 0,
-                },
-                {
-                    barcode: "18857127442027",
-                    label: "600 ml.",
-                    packSize: 12,
-                    quantity: 0,
-                },
-                {
-                    barcode: "18857127442010",
-                    label: "1500 ml.",
-                    packSize: 6,
-                    quantity: 0,
-                },
-            ],
-        },
-    ]);
 
-    const getItem = (id: string) => {
+    const [catalogBrands, setCatalogBrand] = useState<DrinkingCatalogBrand[]>(DrinkingCatalogSeed);
+    const [products, setProducts] = useState<Product[]>([]);
+
+    const getItem = (barcode: string) => {
         for (const brand of catalogBrands) {
-            const item = brand.items.find((i) => i.barcode === id);
+            const item = brand.items.find((i) => i.barcode === barcode);
             if (item) return item;
         }
         return undefined;
     };
 
-    const getQuantity = (id: string) => {
+    const getProductByBarcode = (barcode: string) => {
+        return products.find((x) => x.barcode === barcode);
+    };
+
+    const getQuantity = (barcode: string) => {
         for (const brand of catalogBrands) {
-            const item = brand.items.find((i) => i.barcode === id);
+            const item = brand.items.find((i) => i.barcode === barcode);
             if (item) return item.quantity;
         }
         return 0;
     };
 
-    const setQuantity = (id: string, newValue: number) => {
-        console.log(`set quantity [${id}] to ${newValue}`);
+    const setQuantity = (barcode: string, newValue: number) => {
+        console.log(`set quantity [${barcode}] to ${newValue}`);
         setCatalogBrand((prevBrands) =>
             prevBrands.map((brand) => ({
                 ...brand,
                 items: brand.items.map((item) =>
-                    item.id === id ? { ...item, quantity: newValue } : item
+                    item.barcode === barcode ? { ...item, quantity: newValue } : item
                 ),
             }))
         );
@@ -139,15 +82,21 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
         const totalPrice = catalogBrands.reduce(
             (total, brand) =>
                 total +
-                brand.items.reduce((sum, item) => sum + (item.unitPrice ?? 0) * item.quantity, 0),
+                brand.items.reduce(
+                    (sum, item) =>
+                        sum +
+                        (products.find((x) => x.barcode == item.barcode)?.unitPrice ?? 0) *
+                            item.quantity,
+                    0
+                ),
             0
         );
-
+        /*
         const itemsQuantity = catalogBrands
             .flatMap((brand) => brand.items)
             .filter((item) => item.quantity > 0)
             .map((item) => ({
-                id: item.id ?? "",
+                id: products.find((x) => x.barcode)?.id ?? "",
                 quantity: item.quantity,
             }));
         const discountAmount = CalculateDiscount(itemsQuantity);
@@ -156,35 +105,28 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
                 totalPrice - discountAmount
             }`
         );
-        return totalPrice - discountAmount;
+        return totalPrice - discountAmount;*/
+        return totalPrice;
     };
 
-    const updateCatalogPrices = async () => {
+    const fetchProducts = async () => {
         console.log("update price");
-        const updatedBrands = await Promise.all(
+        const nestedProducts = await Promise.all(
             catalogBrands.map(async (brand) => {
-                const updatedItems = await Promise.all(
+                return await Promise.all(
                     brand.items.map(async (item) => {
-                        const product = await fetchProductById(item.barcode);
-                        return product
-                            ? {
-                                  ...item,
-                                  id: product.id,
-                                  barcode: product.barcode,
-                                  name: product.name,
-                                  unitPrice: product.unitPrice,
-                              }
-                            : item;
+                        return await fetchProductById(item.barcode);
                     })
                 );
-                return { ...brand, items: updatedItems };
             })
         );
-        setCatalogBrand(updatedBrands);
+
+        const products = nestedProducts.flat(); // flattens Product[][]
+        setProducts(products);
     };
 
-    const fetchProductById = async (id: string): Promise<Product> => {
-        const res = await fetch(`http://192.168.1.28:5000/api/v1/products/${id}`);
+    const fetchProductById = async (identifier: string): Promise<Product> => {
+        const res = await fetch(`http://192.168.1.28:5000/api/v1/products/${identifier}`);
         if (!res.ok) throw new Error("Failed to fetch product");
         return await res.json(); // Assuming it returns a `Product`
     };
@@ -193,48 +135,46 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
         for (const brand of catalogBrands) {
             for (const item of brand.items) {
                 if (item.quantity > 0) {
-                    const cartItem = cart.find((x) => x.id == item.barcode);
+                    const cartItem = cart.find((x) => x.barcode === item.barcode);
                     if (cartItem) {
-                        dispatch(updateQuantity({ id: item.barcode, newValue: item.quantity }));
+                        dispatch(updateQuantity({ id: cartItem.id, newValue: item.quantity }));
                     } else {
-                        dispatch(
-                            addItem({
-                                id: item.id ?? "",
-                                name: item.name ?? "",
-                                quantity: item.quantity,
-                                price: item.unitPrice ?? 0,
-                            })
-                        );
+                        const newCartProduct = products.find((x) => x.barcode === item?.barcode);
+                        if (newCartProduct) {
+                            dispatch(addItem({ ...newCartProduct, quantity: item.quantity }));
+                        }
                     }
                 } else {
-                    dispatch(removeItem(item.barcode));
+                    const cartItem = cart.find((x) => x.barcode === item.barcode);
+                    if (cartItem) dispatch(removeItem(cartItem?.id));
                 }
             }
         }
     };
 
     return (
-        <WaterCatalogContext.Provider
+        <DrinkingCatalogContext.Provider
             value={{
                 catalogBrands,
                 getItem,
+                getProductByBarcode,
                 getQuantity,
                 setQuantity,
                 getTotalQuantity,
                 getTotalPrice,
-                updateCatalogPrices,
+                fetchProducts,
                 SetSeletedItemsToCart,
             }}
         >
             {children}
-        </WaterCatalogContext.Provider>
+        </DrinkingCatalogContext.Provider>
     );
 };
 
-export const useWaterCatalog = (): DrinkingCatalogContext => {
-    const context = useContext(WaterCatalogContext);
+export const useDrinkingCatalog = (): DrinkingCatalogContext => {
+    const context = useContext(DrinkingCatalogContext);
     if (!context) {
-        throw new Error("useWaterCatalog must be used within a WaterCatalogProvider");
+        throw new Error("useDrinkingCatalog must be used within a DrinkingCatalogProvider");
     }
     return context;
 };

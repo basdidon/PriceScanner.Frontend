@@ -1,29 +1,20 @@
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, Button, Divider, Text } from "react-native-paper";
 import { View, StyleSheet, Image } from "react-native";
 import ProductCartActionBar from "@/components/ProductCartActionBar";
 import { useTheme } from "react-native-paper";
-import { AppDispatch, RootState } from "@/store";
-import { useDispatch, useSelector } from "react-redux";
-import { addItem, updateQuantity } from "@/store/cartSlice";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProduct } from "@/api/product";
 
 export default function DetailsScreen() {
-    const cart = useSelector((state: RootState) => state.cart);
-    const dispatch = useDispatch<AppDispatch>();
-
     const { id } = useLocalSearchParams();
-    const router = useRouter();
     const theme = useTheme();
 
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ["getProduct", id.toString()], // 123 is dynamic
         queryFn: fetchProduct,
     });
-
-    const cartItem = cart.find((x) => x.id === id);
 
     if (isLoading) return <ActivityIndicator />;
     if (error)

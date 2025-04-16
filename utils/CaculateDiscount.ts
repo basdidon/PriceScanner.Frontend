@@ -1,4 +1,4 @@
-import { Discount } from "@/store/discountSlice";
+import { Discount } from "@/api/discounts";
 
 export interface ItemQuantity {
     id: string;
@@ -18,9 +18,9 @@ export const CalculateDiscount = (items: ItemQuantity[], discounts: Discount[]) 
     console.log(`discounts(n) : ${discounts.length}`);
     for (const discount of discounts) {
         console.log(discount.name);
-        const { conditions, discountAmount } = discount;
+        const { discountConditions, discountAmount } = discount;
 
-        if (Array.isArray(conditions)) {
+        if (Array.isArray(discountConditions)) {
             console.log("array");
             // 📦 Bundle Discount
             let timesApplied = 0;
@@ -29,10 +29,10 @@ export const CalculateDiscount = (items: ItemQuantity[], discounts: Discount[]) 
             while (canApply) {
                 const usedItems: [string, number][] = [];
 
-                for (const condition of conditions) {
+                for (const condition of discountConditions) {
                     let matched = false;
 
-                    for (const id of condition.eligibleItemIds) {
+                    for (const id of condition.productIds) {
                         const available = itemMap.get(id) ?? 0;
                         if (available >= condition.requiredAmount) {
                             usedItems.push([id, condition.requiredAmount]);
@@ -63,20 +63,22 @@ export const CalculateDiscount = (items: ItemQuantity[], discounts: Discount[]) 
             let totalMatchedQuantity = 0;
             const usedItemIds: [string, number][] = [];
 
-            for (const id of conditions.eligibleItemIds) {
+            for (const id of discountConditions.productIds) {
                 const available = itemMap.get(id) ?? 0;
                 console.log(`available ${id} (n): ${available}`);
                 totalMatchedQuantity += available;
                 usedItemIds.push([id, available]);
             }
 
-            const timesApplicable = Math.floor(totalMatchedQuantity / conditions.requiredAmount);
+            const timesApplicable = Math.floor(
+                totalMatchedQuantity / discountConditions.requiredAmount
+            );
 
             if (timesApplicable > 0) {
                 totalDiscount += timesApplicable * discountAmount;
 
                 // Deduct used quantities proportionally
-                let needed = timesApplicable * conditions.requiredAmount;
+                let needed = timesApplicable * discountConditions.requiredAmount;
                 for (const [id, available] of usedItemIds) {
                     const used = Math.min(available, needed);
                     itemMap.set(id, available - used);

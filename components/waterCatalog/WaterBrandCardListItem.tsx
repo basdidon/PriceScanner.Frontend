@@ -1,6 +1,8 @@
+import { fetchProduct, Product } from "@/api/product";
 import { localImageMap } from "@/constants/LocalImageMap";
 import { DrinkingCatalogItem, useDrinkingCatalog } from "@/hooks/contexts/useCatalogContext";
 import { RootState } from "@/store";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 import { View, Image } from "react-native";
@@ -9,7 +11,7 @@ import { useSelector } from "react-redux";
 
 const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogItem) => {
     const localSource = localImageMap[barcode];
-    const { getQuantity, setQuantity, getProductByBarcode } = useDrinkingCatalog();
+    const { getQuantity, setQuantity } = useDrinkingCatalog();
     const cart = useSelector((state: RootState) => state.cart);
 
     useFocusEffect(
@@ -22,11 +24,11 @@ const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogIte
     );
 
     const quantity = getQuantity(barcode);
-    const product = getProductByBarcode(barcode);
 
-    if (!product) {
-        return <></>;
-    }
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ["getProduct", barcode],
+        queryFn: fetchProduct,
+    });
 
     return (
         <>
@@ -67,7 +69,7 @@ const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogIte
                                 marginEnd: "auto",
                             }}
                         >
-                            ฿{product.unitPrice}
+                            ฿{data?.unitPrice}
                         </Text>
                     </View>
                     <IconButton

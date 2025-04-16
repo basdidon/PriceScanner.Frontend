@@ -11,12 +11,28 @@ import {
     Divider,
     FAB,
 } from "react-native-paper";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDiscounts } from "@/api/discounts";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import { setDiscounts } from "@/store/discountSlice";
 export default function Index() {
     const theme = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
+
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ["getDiscounts"],
+        queryFn: fetchDiscounts,
+    });
+
+    const dispacth = useDispatch<AppDispatch>();
+
+    useEffect(() => {
+        if (data) dispacth(setDiscounts(data));
+    }, []);
 
     return (
         <>
@@ -109,6 +125,7 @@ export default function Index() {
                     >
                         go 8051164586194
                     </Button>
+                    <Text>Discounts {data?.length ?? -1}</Text>
                 </View>
             </View>
         </>

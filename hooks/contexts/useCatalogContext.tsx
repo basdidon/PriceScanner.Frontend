@@ -1,6 +1,5 @@
-import { Product } from "@/api/product";
+import { fetchProduct, Product } from "@/api/product";
 import { AppDispatch, RootState } from "@/store";
-import { useCalculateDiscount } from "@/utils/CaculateDiscount";
 import { createContext, ReactNode, useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem, updateQuantity, removeItem } from "@/store/cartSlice";
@@ -21,13 +20,11 @@ export type DrinkingCatalogItem = {
 interface DrinkingCatalogContext {
     catalogBrands: DrinkingCatalogBrand[];
     getItem: (barcode: string) => DrinkingCatalogItem | undefined;
-    getProductByBarcode: (barcode: string) => Product | undefined;
     getQuantity: (barcode: string) => number;
     setQuantity: (barcode: string, newValue: number) => void;
     getTotalQuantity: () => number;
-    getTotalPrice: () => number;
-    fetchProducts: () => void;
-    SetSeletedItemsToCart: () => void;
+    GetBarcodes: () => string[];
+    GetBarcodesQuantity: () => { barcode: string; quantity: number }[];
 }
 
 var DrinkingCatalogContext = createContext<DrinkingCatalogContext | undefined>(undefined);
@@ -37,7 +34,6 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
     const dispatch = useDispatch<AppDispatch>();
 
     const [catalogBrands, setCatalogBrand] = useState<DrinkingCatalogBrand[]>(DrinkingCatalogSeed);
-    const [products, setProducts] = useState<Product[]>([]);
 
     const getItem = (barcode: string) => {
         for (const brand of catalogBrands) {
@@ -45,10 +41,6 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
             if (item) return item;
         }
         return undefined;
-    };
-
-    const getProductByBarcode = (barcode: string) => {
-        return products.find((x) => x.barcode === barcode);
     };
 
     const getQuantity = (barcode: string) => {
@@ -77,60 +69,7 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
             0
         );
     };
-
-    const getTotalPrice = () => {
-        const totalPrice = catalogBrands.reduce(
-            (total, brand) =>
-                total +
-                brand.items.reduce(
-                    (sum, item) =>
-                        sum +
-                        (products.find((x) => x.barcode == item.barcode)?.unitPrice ?? 0) *
-                            item.quantity,
-                    0
-                ),
-            0
-        );
-        /*
-        const itemsQuantity = catalogBrands
-            .flatMap((brand) => brand.items)
-            .filter((item) => item.quantity > 0)
-            .map((item) => ({
-                id: products.find((x) => x.barcode)?.id ?? "",
-                quantity: item.quantity,
-            }));
-        const discountAmount = CalculateDiscount(itemsQuantity);
-        console.log(
-            `-------------------------\ntotal:${totalPrice}\ndiscountAmount: ${discountAmount}\nnetTotal:${
-                totalPrice - discountAmount
-            }`
-        );
-        return totalPrice - discountAmount;*/
-        return totalPrice;
-    };
-
-    const fetchProducts = async () => {
-        console.log("update price");
-        const nestedProducts = await Promise.all(
-            catalogBrands.map(async (brand) => {
-                return await Promise.all(
-                    brand.items.map(async (item) => {
-                        return await fetchProductById(item.barcode);
-                    })
-                );
-            })
-        );
-
-        const products = nestedProducts.flat(); // flattens Product[][]
-        setProducts(products);
-    };
-
-    const fetchProductById = async (identifier: string): Promise<Product> => {
-        const res = await fetch(`http://192.168.1.28:5000/api/v1/products/${identifier}`);
-        if (!res.ok) throw new Error("Failed to fetch product");
-        return await res.json(); // Assuming it returns a `Product`
-    };
-
+    /*
     const SetSeletedItemsToCart = () => {
         for (const brand of catalogBrands) {
             for (const item of brand.items) {
@@ -151,19 +90,27 @@ export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
             }
         }
     };
+*/
+    const GetBarcodes = () => {
+        return catalogBrands.flatMap((x) => x.items).map((x) => x.barcode);
+    };
+
+    const GetBarcodesQuantity = () => {
+        return catalogBrands
+            .flatMap((x) => x.items)
+            .map((x) => ({ barcode: x.barcode, quantity: x.quantity }));
+    };
 
     return (
         <DrinkingCatalogContext.Provider
             value={{
                 catalogBrands,
                 getItem,
-                getProductByBarcode,
                 getQuantity,
                 setQuantity,
                 getTotalQuantity,
-                getTotalPrice,
-                fetchProducts,
-                SetSeletedItemsToCart,
+                GetBarcodes,
+                GetBarcodesQuantity,
             }}
         >
             {children}

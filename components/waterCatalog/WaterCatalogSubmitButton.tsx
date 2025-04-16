@@ -1,7 +1,10 @@
+import { Product } from "@/api/product";
 import { AppTheme } from "@/constants/appTheme";
 import { useDrinkingCatalog } from "@/hooks/contexts/useCatalogContext";
 import { RootState } from "@/store";
+import { CartItem } from "@/store/cartSlice";
 import { CalculateDiscount, ItemQuantity } from "@/utils/CaculateDiscount";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { StyleSheet, TouchableHighlight, View } from "react-native";
@@ -10,17 +13,32 @@ import { useSelector } from "react-redux";
 
 const WaterCatalogSubmitButton = () => {
     const theme = useTheme<AppTheme>();
-    const {
-        catalogBrands,
-        getItem,
-        getProductByBarcode,
-        getTotalQuantity,
-        getTotalPrice,
-        SetSeletedItemsToCart,
-    } = useDrinkingCatalog();
-    const totalQuantity = getTotalQuantity();
-    const totalPrice = getTotalPrice();
+    const { GetBarcodesQuantity, getQuantity, getTotalQuantity } = useDrinkingCatalog();
+    const productBarcodes = GetBarcodesQuantity();
 
+    const totalQuantity = getTotalQuantity();
+
+    const useCachedProducts = (barcodes: string[]): Product[] => {
+        const queryClient = useQueryClient();
+
+        const cachedProducts: Product[] = barcodes
+            .map((barcode) => queryClient.getQueryData<Product>(["getProduct", barcode]))
+            .filter((product): product is Product => product !== undefined);
+
+        return cachedProducts;
+    };
+    const cacheProducts = useCachedProducts(productBarcodes.map((x) => x.barcode));
+    const productsQuantity: CartItem[] = productBarcodes
+        .map((x) => {
+            const product = cacheProducts.find((product) => product.barcode === x.barcode);
+            if (product) return { ...product, quantity: getQuantity(x.barcode) };
+            return undefined;
+        })
+        .filter((x): x is CartItem => x !== undefined);
+    const totalPrice = productsQuantity.reduce(
+        (sum, item) => sum + item.unitPrice * item.quantity,
+        0
+    );
     const router = useRouter();
 
     const discounts = useSelector((state: RootState) => state.discounts);
@@ -35,23 +53,23 @@ const WaterCatalogSubmitButton = () => {
         useCallback(() => {
             // Invoked whenever the route is focused.
             console.log("catalog focused.");
-            const productBarcodes = catalogBrands.flatMap((x) => x.items).map((x) => x.barcode);
+
             const newdiscount = CalculateDiscount(
-                productBarcodes.map(
+                productsQuantity.map(
                     (x): ItemQuantity => ({
-                        id: getProductByBarcode(x)?.id ?? "",
-                        quantity: getItem(x)?.quantity ?? 0,
+                        id: x.id,
+                        quantity: x.quantity,
                     })
                 ),
                 discounts
             );
-            console.log(`newdiscount:${newdiscount}`);
+
             setDiscountAmount(newdiscount);
             // Return function is invoked whenever the route gets out of focus.
             return () => {
                 console.log("catalog unfocused.");
             };
-        }, [catalogBrands, discounts])
+        }, [discounts])
     );
 
     return (
@@ -60,7 +78,6 @@ const WaterCatalogSubmitButton = () => {
                 underlayColor={theme.colors.inverseSuccess}
                 style={[styles.btn, { backgroundColor: theme.colors.success }]}
                 onPress={() => {
-                    SetSeletedItemsToCart();
                     router.push("/cart");
                 }}
                 disabled={netPrice <= 0}

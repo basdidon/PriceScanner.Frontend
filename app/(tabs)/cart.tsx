@@ -1,13 +1,13 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { View, StatusBar, TouchableHighlight, StyleSheet, ScrollView } from "react-native";
-import { FAB, IconButton, Surface, Text } from "react-native-paper";
+import { Button, Dialog, FAB, IconButton, Portal, Surface, Text } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { clearCart } from "@/store/cartSlice";
 import { useAppTheme } from "@/constants/appTheme";
 import CartItemCard from "@/components/CartItemCart";
 import { CalculateDiscount, ItemQuantity } from "@/utils/CaculateDiscount";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 
 export default function CartScreen() {
     const cart = useSelector((state: RootState) => state.cart);
@@ -16,36 +16,28 @@ export default function CartScreen() {
     const theme = useAppTheme();
     const router = useRouter();
 
-    const [discountAmount, setDiscountAmount] = useState(0);
+    const [visible, setVisible] = React.useState(false);
+    const showDialog = () => setVisible(true);
+    const hideDialog = () => setVisible(false);
+
     const totalPrice = cart.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
 
-    useFocusEffect(
-        // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
-        useCallback(() => {
-            // Invoked whenever the route is focused.
-            console.log("cart focused.");
-            const newdiscount = CalculateDiscount(
-                cart.map(
-                    (x): ItemQuantity => ({
-                        id: x.id,
-                        quantity: x.quantity,
-                    })
-                ),
-                discounts
-            );
-
-            setDiscountAmount(newdiscount);
-            // Return function is invoked whenever the route gets out of focus.
-            return () => {
-                console.log("cart unfocused.");
-            };
-        }, [cart, discounts])
-    );
+    const discountAmount = useMemo(() => {
+        return CalculateDiscount(
+            cart.map(
+                (x): ItemQuantity => ({
+                    id: x.id,
+                    quantity: x.quantity,
+                })
+            ),
+            discounts
+        );
+    }, [cart]);
 
     return (
         <View style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
-                <Surface style={{ paddingTop: StatusBar.currentHeight, marginBottom: 8 }}>
+                <Surface style={{ paddingTop: StatusBar.currentHeight }}>
                     <Text variant="headlineSmall" style={styles.headerText}>
                         ตะกร้าสินค้า
                     </Text>
@@ -53,7 +45,7 @@ export default function CartScreen() {
                         icon={"trash-can"}
                         mode="contained"
                         style={{ position: "absolute", bottom: 0, right: 0 }}
-                        onPress={() => dispatch(clearCart())}
+                        onPress={() => showDialog() /*dispatch(clearCart())*/}
                     />
                 </Surface>
 
@@ -65,20 +57,15 @@ export default function CartScreen() {
                     </View>
                 ) : (
                     <ScrollView>
-                        <View style={{ flex: 1 }}>
+                        <View
+                            style={{ flex: 1, gap: 8, paddingVertical: 12, paddingHorizontal: 8 }}
+                        >
                             {cart.map((item) => (
                                 <CartItemCard key={item.id} {...item} />
                             ))}
                         </View>
                     </ScrollView>
                 )}
-                <FAB
-                    icon="barcode"
-                    style={styles.fab}
-                    mode="flat"
-                    size="medium"
-                    onPress={() => router.push("/scanner")}
-                />
             </View>
             <Surface style={{ padding: 12 }}>
                 <View style={{ flexDirection: "row", gap: 24 }}>
@@ -121,6 +108,25 @@ export default function CartScreen() {
                     </Text>
                 </TouchableHighlight>
             </Surface>
+            <Portal>
+                <Dialog visible={visible} onDismiss={hideDialog}>
+                    <Dialog.Title>ล้างตะกร้า</Dialog.Title>
+                    <Dialog.Content>
+                        <Text variant="bodyMedium">คุณต้องการจะล้างตะกร้าใช่หรือไม่</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={hideDialog}>ไม่</Button>
+                        <Button
+                            onPress={() => {
+                                dispatch(clearCart());
+                                hideDialog();
+                            }}
+                        >
+                            ใช่
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
         </View>
     );
 }

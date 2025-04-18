@@ -35,7 +35,6 @@ export default function Index() {
         if (data) {
             console.log("Dispatching setDiscounts with:", data);
             dispatch(setDiscounts(data));
-            //dispatch(addDiscount(data[0]));
         }
     }, [data]);
 

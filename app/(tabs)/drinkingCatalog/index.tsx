@@ -5,8 +5,7 @@ import WaterCatalogBrandCard from "@/components/waterCatalog/WaterCatalogBrandCa
 import WaterCatalogSubmitButton from "@/components/waterCatalog/WaterCatalogSubmitButton";
 import { useDrinkingCatalog } from "@/hooks/contexts/useCatalogContext";
 import { useFocusEffect } from "expo-router";
-import { useQueries, useQueryClient } from "@tanstack/react-query";
-import { fetchProductByBarcode } from "@/api/product";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function WaterCatalog() {
     const theme = useTheme();
@@ -17,36 +16,16 @@ export default function WaterCatalog() {
     const barcodes = useMemo(() => {
         return catalogBrands.flatMap((brand) => brand.items.map((item) => item.barcode));
     }, [catalogBrands]);
-    /*
-    // Use useQueries to fetch products for each barcode
-    const productQueries = useQueries({
-        queries: barcodes.map((barcode) => ({
-            queryKey: ["productByBarcode", barcode],
-            queryFn: () => fetchProductByBarcode(barcode),
-        })),
-    });*/
 
     // Prefetch product data when the screen is focused
     useFocusEffect(
         useCallback(() => {
             console.log("drinking-catalog focused.");
-            /*
-            barcodes.forEach((barcode) => {
-                queryClient.prefetchQuery({
-                    queryKey: ["productByBarcode", barcode],
-                    queryFn: () => fetchProductByBarcode(barcode),
-                });
-            });*/
-
-            //setProducts([...products]);
             return () => {
                 console.log("drinking-catalog unfocused.");
             };
         }, [barcodes, queryClient])
     );
-
-    // Example: render products (ignoring loading/error for now)
-    //const products = productQueries.map((query) => query.data).filter((p) => p !== undefined);
 
     return (
         <>

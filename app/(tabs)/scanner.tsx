@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Text, View, StyleSheet, Button, Dimensions, StatusBar } from "react-native";
 import { CameraView, Camera, BarcodeScanningResult } from "expo-camera";
 import Svg, { Defs, ClipPath, G, Rect } from "react-native-svg";
+import { useFocusEffect, useRouter } from "expo-router";
 
 // We can use this to make the overlay fill the entire width
 var { width, height } = Dimensions.get("screen");
@@ -12,6 +13,8 @@ export default function CameraScannerComponent() {
     const [hasPermission, setHasPermission] = useState(false);
     const [scanned, setScanned] = useState(false);
 
+    const router = useRouter();
+
     useEffect(() => {
         const getCameraPermissions = async () => {
             const { status } = await Camera.requestCameraPermissionsAsync();
@@ -20,9 +23,16 @@ export default function CameraScannerComponent() {
         getCameraPermissions();
     }, []);
 
+    useFocusEffect(
+        useCallback(() => {
+            setScanned(false);
+        }, [])
+    );
+
     const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
         setScanned(true);
-        alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+        //alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+        router.push(`/products/${data}`);
     };
 
     if (hasPermission === null) {

@@ -1,5 +1,5 @@
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, Button, Divider, Text } from "react-native-paper";
 import { View, StyleSheet, Image } from "react-native";
 import ProductCartActionBar from "@/components/ProductCartActionBar";
@@ -8,20 +8,34 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchProduct } from "@/api/product";
 
 export default function DetailsScreen() {
-    const { id } = useLocalSearchParams();
     const theme = useTheme();
+
+    const { id } = useLocalSearchParams();
+    const router = useRouter();
 
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ["getProduct", id.toString()], // 123 is dynamic
         queryFn: fetchProduct,
     });
 
-    if (isLoading) return <ActivityIndicator />;
+    if (isLoading)
+        return (
+            <View style={{ flex: 1, justifyContent: "center" }}>
+                <ActivityIndicator size={"large"} />
+            </View>
+        );
+
     if (error)
         return (
             <>
-                <Text>Error: {error.message}</Text>
-                <Button onPress={() => refetch()}>Reload</Button>
+                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                    <Text>Error: {error.message}</Text>
+                    <Text>product ID : {id} </Text>
+                    <Button style={{ marginTop: 24 }} onPress={() => refetch()}>
+                        Reload
+                    </Button>
+                    <Button onPress={() => router.back()}>Back</Button>
+                </View>
             </>
         );
 
@@ -43,6 +57,9 @@ export default function DetailsScreen() {
                     </Text>
                     <Text variant="labelSmall" style={styles.id_text}>
                         ID: {id}
+                    </Text>
+                    <Text variant="labelSmall" style={styles.id_text}>
+                        barcode: {data?.barcode}
                     </Text>
                 </View>
                 <Divider />

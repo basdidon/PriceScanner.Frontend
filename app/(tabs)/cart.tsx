@@ -46,6 +46,7 @@ export default function CartScreen() {
                         mode="contained"
                         style={{ position: "absolute", bottom: 0, right: 0 }}
                         onPress={() => showDialog() /*dispatch(clearCart())*/}
+                        disabled={cart.length <= 0}
                     />
                 </Surface>
 

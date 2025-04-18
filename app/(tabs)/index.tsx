@@ -15,24 +15,29 @@ import { useEffect, useState } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDiscounts } from "@/api/discounts";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
-import { setDiscounts } from "@/store/discountSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { addDiscount, setDiscounts } from "@/store/discountSlice";
 export default function Index() {
     const theme = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
 
-    const { data, isLoading, error, refetch } = useQuery({
+    const { data } = useQuery({
         queryKey: ["getDiscounts"],
         queryFn: fetchDiscounts,
     });
 
-    const dispacth = useDispatch<AppDispatch>();
+    const discounts = useSelector((state: RootState) => state.discounts);
+    const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
-        if (data) dispacth(setDiscounts(data));
-    }, []);
+        if (data) {
+            console.log("Dispatching setDiscounts with:", data);
+            dispatch(setDiscounts(data));
+            //dispatch(addDiscount(data[0]));
+        }
+    }, [data]);
 
     return (
         <>
@@ -126,6 +131,7 @@ export default function Index() {
                         go 8051164586194
                     </Button>
                     <Text>Discounts {data?.length ?? -1}</Text>
+                    <Text>Discounts {discounts.length}</Text>
                 </View>
             </View>
         </>

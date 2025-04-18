@@ -15,78 +15,55 @@ export const CalculateDiscount = (items: ItemQuantity[], discounts: Discount[]) 
         console.log(`${item.id} => ${item.quantity}`);
         itemMap.set(item.id, item.quantity);
     }
+
     console.log(`discounts(n) : ${discounts.length}`);
     for (const discount of discounts) {
-        console.log(discount.name);
+        console.log(`- ${discount.name}`);
         const { discountConditions, discountAmount } = discount;
 
-        if (Array.isArray(discountConditions)) {
-            console.log("array");
-            // 📦 Bundle Discount
-            let timesApplied = 0;
-            let canApply = true;
+        let timesApplied = 0;
+        let canApply = true;
 
-            while (canApply) {
-                const usedItems: [string, number][] = [];
+        while (canApply) {
+            const usedItems = new Map<string, number>();
 
-                for (const condition of discountConditions) {
-                    let matched = false;
+            for (const condition of discountConditions) {
+                let matched = false;
+                let requiredAmount = condition.requiredAmount;
+                const validItems = new Map<string, number>();
 
-                    for (const id of condition.productIds) {
-                        const available = itemMap.get(id) ?? 0;
-                        if (available >= condition.requiredAmount) {
-                            usedItems.push([id, condition.requiredAmount]);
-                            matched = true;
-                            break;
-                        }
-                    }
-
-                    if (!matched) {
-                        canApply = false;
+                for (const id of condition.productIds) {
+                    const available = itemMap.get(id) ?? 0;
+                    console.log(`available[${id}]: ${available}`);
+                    const used = Math.min(requiredAmount, available);
+                    requiredAmount -= used;
+                    validItems.set(id, used);
+                    if (requiredAmount == 0) {
+                        matched = true;
+                        // add validItems to usedItems
+                        validItems.forEach((v, k) => usedItems.set(k, (usedItems.get(k) ?? 0) + v)); // upsert
                         break;
                     }
                 }
 
-                if (canApply) {
-                    // Deduct used quantities
-                    for (const [id, qty] of usedItems) {
-                        itemMap.set(id, itemMap.get(id)! - qty);
-                    }
-                    timesApplied++;
+                if (!matched) {
+                    canApply = false;
+                    break;
                 }
             }
 
-            totalDiscount += timesApplied * discountAmount;
-        } else {
-            console.log("single");
-            // 🧃 Single Discount
-            let totalMatchedQuantity = 0;
-            const usedItemIds: [string, number][] = [];
+            if (canApply) {
+                // Deduct used quantities
+                for (const [id, qty] of usedItems) {
+                    console.log(`[apply] ${id} : ${qty}`);
 
-            for (const id of discountConditions.productIds) {
-                const available = itemMap.get(id) ?? 0;
-                console.log(`available ${id} (n): ${available}`);
-                totalMatchedQuantity += available;
-                usedItemIds.push([id, available]);
-            }
-
-            const timesApplicable = Math.floor(
-                totalMatchedQuantity / discountConditions.requiredAmount
-            );
-
-            if (timesApplicable > 0) {
-                totalDiscount += timesApplicable * discountAmount;
-
-                // Deduct used quantities proportionally
-                let needed = timesApplicable * discountConditions.requiredAmount;
-                for (const [id, available] of usedItemIds) {
-                    const used = Math.min(available, needed);
-                    itemMap.set(id, available - used);
-                    needed -= used;
-                    if (needed <= 0) break;
+                    itemMap.set(id, itemMap.get(id)! - qty);
                 }
+                timesApplied++;
             }
         }
+
+        totalDiscount += timesApplied * discountAmount;
     }
 
     return totalDiscount;

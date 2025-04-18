@@ -5,7 +5,6 @@ import React from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { Text } from "react-native-paper";
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
@@ -26,7 +25,6 @@ export default function TabLayout() {
                     ),
                 }}
             />
-
             <Tabs.Screen
                 name="drinkingCatalog"
                 options={{
@@ -61,6 +59,16 @@ export default function TabLayout() {
                 name="cart"
                 options={{
                     title: "Cart",
+                    tabBarStyle: { display: "none" },
+                    tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+                        <TabBarIcon name={focused ? "cart" : "cart-outline"} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="testcart"
+                options={{
+                    title: "testCart",
                     tabBarStyle: { display: "none" },
                     tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
                         <TabBarIcon name={focused ? "cart" : "cart-outline"} color={color} />

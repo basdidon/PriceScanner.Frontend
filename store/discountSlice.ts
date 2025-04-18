@@ -8,10 +8,13 @@ const discountSlice = createSlice({
     initialState: initialState,
     reducers: {
         setDiscounts: (state, action: PayloadAction<Discount[]>) => {
-            state = [...action.payload];
+            return [...action.payload];
+        },
+        addDiscount: (state, action: PayloadAction<Discount>) => {
+            state.push(action.payload);
         },
     },
 });
 
-export const { setDiscounts } = discountSlice.actions;
+export const { setDiscounts, addDiscount } = discountSlice.actions;
 export default discountSlice.reducer;

@@ -16,9 +16,7 @@ export type Discount = {
     endAt?: Date;
 };
 
-export const fetchDiscounts = async ({
-    queryKey,
-}: QueryFunctionContext<[string]>): Promise<Discount[]> => {
+export const fetchDiscounts = async (): Promise<Discount[]> => {
     const res = await fetch(`http://192.168.1.18:5000/api/v1/discounts`);
     if (!res.ok) throw new Error("Failed to fetch product");
     return res.json();

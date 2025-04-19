@@ -118,6 +118,7 @@ export default function Index() {
                         flex: 1,
                         justifyContent: "center",
                         alignItems: "center",
+                        gap: 8,
                     }}
                 >
                     <Button
@@ -129,8 +130,20 @@ export default function Index() {
                     >
                         go 8051164586194
                     </Button>
-                    <Text>Discounts {data?.length ?? -1}</Text>
-                    <Text>Discounts {discounts.length}</Text>
+                    {discounts.map((x, id) => (
+                        <Button
+                            key={id}
+                            mode="contained"
+                            onPress={() =>
+                                router.push({
+                                    pathname: "/discounts/[id]",
+                                    params: { id: x.id },
+                                })
+                            }
+                        >
+                            {x.name}
+                        </Button>
+                    ))}
                 </View>
             </View>
         </>

@@ -1,21 +1,69 @@
 import { fetchDiscountById } from "@/api/discounts";
+import { fetchProduct } from "@/api/product";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { RootState } from "@/store";
+import { setDiscount } from "@/store/discountSlice";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Image, StyleSheet } from "react-native";
-import { Button, Text, useTheme } from "react-native-paper";
+import { Button, Card, IconButton, Surface, Text, useTheme } from "react-native-paper";
+import { useDispatch, useSelector } from "react-redux";
+
+const ItemSelector = ({ id }: { id: string }) => {
+    const { data } = useQuery({ queryKey: ["getProductById", id], queryFn: fetchProduct });
+    const cart = useSelector((state: RootState) => state.cart);
+
+    const cartItem = cart.find((x) => x.id === id);
+    const [qauntity, setQuantity] = useState(cartItem?.quantity ?? 0);
+
+    return (
+        <>
+            <Card>
+                <Card.Title
+                    title={data?.name}
+                    titleNumberOfLines={2}
+                    right={() => (
+                        <View style={{ flexDirection: "row", gap: 4, justifyContent: "center" }}>
+                            <IconButton
+                                mode="outlined"
+                                size={12}
+                                icon={"minus"}
+                                disabled={qauntity <= 0}
+                                onPress={() => setQuantity(qauntity - 1)}
+                            />
+                            <Text style={{ textAlignVertical: "center" }} variant="headlineMedium">
+                                {qauntity}
+                            </Text>
+                            <IconButton
+                                mode="outlined"
+                                size={12}
+                                icon={"plus"}
+                                onPress={() => setQuantity(qauntity + 1)}
+                            />
+                        </View>
+                    )}
+                />
+            </Card>
+        </>
+    );
+};
 
 const DiscountPage = () => {
     const theme = useTheme();
 
     const { id } = useLocalSearchParams();
     const router = useRouter();
+    const dispatch = useDispatch();
 
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ["getProduct", id.toString()], // 123 is dynamic
+        queryKey: ["getDiscountById", id.toString()], // 123 is dynamic
         queryFn: fetchDiscountById,
     });
+
+    useEffect(() => {
+        if (data) dispatch(setDiscount(data));
+    }, [data]);
 
     return (
         <View style={{ flex: 1 }}>
@@ -28,8 +76,20 @@ const DiscountPage = () => {
                     />
                 }
             >
-                <Text>{data?.name}</Text>
-                <Text>ID:{id}</Text>
+                <Text variant="headlineLarge">{data?.name}</Text>
+                <Text>ID: {id}</Text>
+                <Text>
+                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quae, labore esse,
+                    fuga deleniti reiciendis velit fugiat inventore odio ab, eos reprehenderit?
+                    Nostrum voluptas ut sequi minima ipsum voluptates adipisci provident.
+                </Text>
+                <View style={{ gap: 8 }}>
+                    {data?.discountConditions
+                        .flatMap((x) => x.productIds)
+                        .map((x, idx) => (
+                            <ItemSelector key={idx} id={x} />
+                        ))}
+                </View>
             </ParallaxScrollView>
             <Button
                 style={{ marginHorizontal: 8, marginVertical: 12 }}

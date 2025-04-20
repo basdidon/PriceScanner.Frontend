@@ -7,67 +7,64 @@ import { CalculateDiscount, ItemQuantity } from "@/utils/CaculateDiscount";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useMemo } from "react";
-import { StyleSheet, TouchableHighlight, View } from "react-native";
+import { StyleSheet, TouchableHighlight, View, ViewProps } from "react-native";
 import { Badge, Text, useTheme } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 
-const WaterCatalogSubmitButton = () => {
+type WaterCatalogSubmitButtonProps = ViewProps & {};
+
+const WaterCatalogSubmitButton = (props: WaterCatalogSubmitButtonProps) => {
     const theme = useTheme<AppTheme>();
     const router = useRouter();
 
-    const { catalogBrands, GetBarcodesQuantity, getQuantity, getTotalQuantity } =
+    const { catalogBrands, GetBarcodesQuantity, getQuantity, totalQuantity, GetBarcodes } =
         useDrinkingCatalog();
+
     const productBarcodes = GetBarcodesQuantity();
+    const barcodes = useMemo(() => productBarcodes.map((x) => x.barcode), [productBarcodes]);
 
     const cart = useSelector((state: RootState) => state.cart);
+    const discounts = useSelector((state: RootState) => state.discounts);
     const dispatch = useDispatch<AppDispatch>();
-
-    const totalQuantity = getTotalQuantity();
 
     const useCachedProducts = (barcodes: string[]): Product[] => {
         const queryClient = useQueryClient();
-
-        const cachedProducts: Product[] = barcodes
-            .map((barcode) => queryClient.getQueryData<Product>(["getProduct", barcode]))
-            .filter((product): product is Product => product !== undefined);
-
-        return cachedProducts;
+        return useMemo(() => {
+            return barcodes
+                .map((barcode) => queryClient.getQueryData<Product>(["getProduct", barcode]))
+                .filter((product): product is Product => !!product);
+        }, [barcodes]);
     };
-    const cacheProducts = useCachedProducts(productBarcodes.map((x) => x.barcode));
-    const productsQuantity: CartItem[] = productBarcodes
-        .map((x) => {
-            const product = cacheProducts.find((product) => product.barcode === x.barcode);
-            if (product) return { ...product, quantity: getQuantity(x.barcode) };
-            return undefined;
-        })
-        .filter((x): x is CartItem => x !== undefined);
+
+    const cacheProducts = useCachedProducts(barcodes);
+
+    const productsQuantity = useMemo(() => {
+        return productBarcodes
+            .map((x) => {
+                const product = cacheProducts.find((p) => p.barcode === x.barcode);
+                return product ? { ...product, quantity: getQuantity(x.barcode) } : undefined;
+            })
+            .filter((x): x is CartItem => !!x);
+    }, [productBarcodes, cacheProducts, getQuantity]);
 
     const totalPrice = useMemo(() => {
         return productsQuantity.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
     }, [productsQuantity]);
 
-    const discounts = useSelector((state: RootState) => state.discounts);
     const discountAmount = useMemo(() => {
         return CalculateDiscount(
-            productsQuantity.map(
-                (x): ItemQuantity => ({
-                    id: x.id,
-                    quantity: x.quantity,
-                })
-            ),
+            productsQuantity.map((x) => ({ id: x.id, quantity: x.quantity })),
             discounts
         );
-    }, [productsQuantity]);
+    }, [productsQuantity, discounts]);
 
-    // useMemo is a React Hook that lets you cache the result of a calculation between re-renders.
-    // seemore : https://react.dev/reference/react/useMemo
     const netPrice = useMemo(() => totalPrice - discountAmount, [totalPrice, discountAmount]);
 
     return (
         <>
             <TouchableHighlight
                 underlayColor={theme.colors.inverseSuccess}
-                style={[styles.btn, { backgroundColor: theme.colors.success }]}
+                style={[styles.btn, { backgroundColor: theme.colors.success }, props.style]}
                 onPress={() => {
                     for (const brand of catalogBrands) {
                         for (const item of brand.items) {
@@ -104,7 +101,7 @@ const WaterCatalogSubmitButton = () => {
                 disabled={netPrice <= 0}
             >
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    {netPrice > 0 ? (
+                    {netPrice > 0 && (
                         <Badge
                             style={{
                                 backgroundColor: theme.colors.onSuccess,
@@ -117,8 +114,6 @@ const WaterCatalogSubmitButton = () => {
                         >
                             {totalQuantity}
                         </Badge>
-                    ) : (
-                        <></>
                     )}
                     <Text style={[styles.onBtn, { color: theme.colors.onSuccess }]}>ยืนยัน</Text>
                     <Text

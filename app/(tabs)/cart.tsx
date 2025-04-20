@@ -7,14 +7,13 @@ import { clearCart } from "@/store/cartSlice";
 import { useAppTheme } from "@/constants/appTheme";
 import CartItemCard from "@/components/CartItemCart";
 import { CalculateDiscount, ItemQuantity } from "@/utils/CaculateDiscount";
-import { useRouter } from "expo-router";
+import ConfirmButton from "@/components/ConfirmButton";
 
 export default function CartScreen() {
     const cart = useSelector((state: RootState) => state.cart);
     const discounts = useSelector((state: RootState) => state.discounts);
     const dispatch = useDispatch<AppDispatch>();
     const theme = useAppTheme();
-    const router = useRouter();
 
     const [visible, setVisible] = React.useState(false);
     const showDialog = () => setVisible(true);
@@ -108,6 +107,7 @@ export default function CartScreen() {
                         ยืนยัน
                     </Text>
                 </TouchableHighlight>
+                <ConfirmButton onPress={() => {}} />
             </Surface>
             <Portal>
                 <Dialog visible={visible} onDismiss={hideDialog}>

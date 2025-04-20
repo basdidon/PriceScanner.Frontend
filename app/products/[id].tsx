@@ -49,7 +49,6 @@ export default function DetailsScreen() {
                         style={styles.reactLogo}
                     />
                 }
-                //footerElement={<ProductCartActionBar product={data!} />}
             >
                 <View style={{ backgroundColor: theme.colors.background }}>
                     <View style={{ paddingBottom: 8 }}>

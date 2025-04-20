@@ -4,6 +4,7 @@ import { Text, IconButton, Surface } from "react-native-paper";
 import UpsertCartItemButton, { UpsertCartItemButtonProps } from "./UpsertCartItemButton";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import Stepper from "./ProductSelector";
 
 type ProductCartActionBarProps = Omit<UpsertCartItemButtonProps, "quantity">;
 
@@ -21,26 +22,14 @@ const ProductCartActionBar = ({ product }: ProductCartActionBarProps) => {
             }}
         >
             <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-                <View style={{ flexDirection: "row", gap: 4 }}>
-                    <IconButton
-                        size={20}
-                        icon="minus"
-                        mode="contained-tonal"
-                        disabled={quantity == 1}
-                        onPress={() => setQuantity(quantity - 1 < 1 ? 1 : quantity - 1)}
-                    />
-                    <Text variant="headlineSmall" style={{ textAlignVertical: "center" }}>
-                        {quantity}
-                    </Text>
-                    <IconButton
-                        size={20}
-                        icon="plus"
-                        mode="contained-tonal"
-                        onPress={() => {
-                            setQuantity(quantity + 1);
-                        }}
-                    />
-                </View>
+                <Stepper
+                    value={quantity}
+                    onChanged={(newValue) => setQuantity(newValue)}
+                    minValue={1}
+                    buttonMode="contained-tonal"
+                    buttonSize={20}
+                    textVariant="headlineMedium"
+                />
                 <UpsertCartItemButton quantity={quantity} product={product} />
             </View>
         </Surface>

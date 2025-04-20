@@ -8,6 +8,7 @@ import { useCallback } from "react";
 import { View, Image } from "react-native";
 import { Card, IconButton, Text } from "react-native-paper";
 import { useSelector } from "react-redux";
+import Stepper from "../ProductSelector";
 
 const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogItem) => {
     const localSource = localImageMap[barcode];
@@ -25,7 +26,7 @@ const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogIte
 
     const quantity = getQuantity(barcode);
 
-    const { data, isLoading, error, refetch } = useQuery({
+    const { data } = useQuery({
         queryKey: ["getProduct", barcode],
         queryFn: fetchProduct,
     });
@@ -72,19 +73,10 @@ const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogIte
                             ฿{data?.unitPrice}
                         </Text>
                     </View>
-                    <IconButton
-                        size={12}
-                        mode="outlined"
-                        icon={"minus"}
-                        disabled={quantity <= 0}
-                        onPress={() => setQuantity(barcode, quantity - 1 < 0 ? 0 : quantity - 1)}
-                    />
-                    <Text variant="headlineSmall">{quantity}</Text>
-                    <IconButton
-                        size={12}
-                        mode="outlined"
-                        icon={"plus"}
-                        onPress={() => setQuantity(barcode, quantity + 1)}
+                    <Stepper
+                        value={quantity}
+                        onChanged={(value) => setQuantity(barcode, value)}
+                        minValue={0}
                     />
                 </View>
             </Card.Content>

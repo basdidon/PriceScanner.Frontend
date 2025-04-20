@@ -1,16 +1,19 @@
-import { View, StatusBar, StyleSheet, ScrollView } from "react-native";
-import { useTheme, Surface, Text } from "react-native-paper";
-import React, { useCallback, useMemo, useState } from "react";
+import { StyleSheet, ScrollView } from "react-native";
+import { Badge, Text } from "react-native-paper";
+import React, { useCallback, useMemo } from "react";
 import WaterCatalogBrandCard from "@/components/waterCatalog/WaterCatalogBrandCard";
 import WaterCatalogSubmitButton from "@/components/waterCatalog/WaterCatalogSubmitButton";
 import { useDrinkingCatalog } from "@/hooks/contexts/useCatalogContext";
 import { useFocusEffect } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
+import ScreenContainer from "@/components/ScreenContainer";
+import ConfirmButton from "@/components/ConfirmButton";
+import { useAppTheme } from "@/constants/appTheme";
 
 export default function WaterCatalog() {
-    const theme = useTheme();
+    const theme = useAppTheme();
     const queryClient = useQueryClient();
-    const { catalogBrands } = useDrinkingCatalog();
+    const { catalogBrands, totalQuantity, netPrice } = useDrinkingCatalog();
 
     // Derive barcodes only once using useMemo (to prevent recalculating on each render)
     const barcodes = useMemo(() => {
@@ -29,23 +32,40 @@ export default function WaterCatalog() {
 
     return (
         <>
-            <View
-                style={{
-                    flex: 1,
-                    gap: 8,
-                    backgroundColor: theme.colors.background,
-                    paddingTop: StatusBar.currentHeight,
-                }}
-            >
+            <ScreenContainer>
                 <ScrollView style={{ padding: 8 }}>
                     {catalogBrands.map((x, idx) => (
                         <WaterCatalogBrandCard key={idx} {...x} />
                     ))}
                 </ScrollView>
-            </View>
-            <Surface>
                 <WaterCatalogSubmitButton />
-            </Surface>
+                <ConfirmButton
+                    onPress={() => {}}
+                    left={
+                        totalQuantity > 0 && (
+                            <Badge
+                                style={{
+                                    backgroundColor: theme.colors.onSuccess,
+                                    borderRadius: 6,
+                                    color: theme.colors.success,
+                                }}
+                            >
+                                {totalQuantity}
+                            </Badge>
+                        )
+                    }
+                    right={
+                        <Text
+                            style={[
+                                styles.onBtn,
+                                { color: theme.colors.onSuccess, marginStart: "auto" },
+                            ]}
+                        >
+                            ฿{netPrice}
+                        </Text>
+                    }
+                />
+            </ScreenContainer>
         </>
     );
 }
@@ -55,5 +75,9 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 12,
+    },
+    onBtn: {
+        fontWeight: "bold",
+        fontSize: 18,
     },
 });

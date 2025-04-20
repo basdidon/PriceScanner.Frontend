@@ -1,6 +1,7 @@
 import { fetchDiscountById } from "@/api/discounts";
 import { fetchProduct } from "@/api/product";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
+import Stepper from "@/components/ProductSelector";
 import { RootState } from "@/store";
 import { setDiscount } from "@/store/discountSlice";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +11,7 @@ import { View, Image, StyleSheet } from "react-native";
 import { Button, Card, IconButton, Surface, Text, useTheme } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 
-const ItemSelector = ({ id }: { id: string }) => {
+const DiscountProductCard = ({ id }: { id: string }) => {
     const { data } = useQuery({ queryKey: ["getProductById", id], queryFn: fetchProduct });
     const cart = useSelector((state: RootState) => state.cart);
 
@@ -24,24 +25,11 @@ const ItemSelector = ({ id }: { id: string }) => {
                     title={data?.name}
                     titleNumberOfLines={2}
                     right={() => (
-                        <View style={{ flexDirection: "row", gap: 4, justifyContent: "center" }}>
-                            <IconButton
-                                mode="outlined"
-                                size={12}
-                                icon={"minus"}
-                                disabled={qauntity <= 0}
-                                onPress={() => setQuantity(qauntity - 1)}
-                            />
-                            <Text style={{ textAlignVertical: "center" }} variant="headlineMedium">
-                                {qauntity}
-                            </Text>
-                            <IconButton
-                                mode="outlined"
-                                size={12}
-                                icon={"plus"}
-                                onPress={() => setQuantity(qauntity + 1)}
-                            />
-                        </View>
+                        <Stepper
+                            value={qauntity}
+                            onChanged={(newValue) => setQuantity(newValue)}
+                            minValue={0}
+                        />
                     )}
                 />
             </Card>
@@ -87,7 +75,7 @@ const DiscountPage = () => {
                     {data?.discountConditions
                         .flatMap((x) => x.productIds)
                         .map((x, idx) => (
-                            <ItemSelector key={idx} id={x} />
+                            <DiscountProductCard key={idx} id={x} />
                         ))}
                 </View>
             </ParallaxScrollView>

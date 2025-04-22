@@ -1,11 +1,16 @@
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, Button, Divider, Text } from "react-native-paper";
-import { View, StyleSheet, Image } from "react-native";
+import { ActivityIndicator, Button, Divider, FAB, Text } from "react-native-paper";
+import { View, StyleSheet, Image, StatusBar } from "react-native";
 import ProductCartActionBar from "@/components/ProductCartActionBar";
 import { useTheme } from "react-native-paper";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProduct } from "@/api/product";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { removeItem } from "@/store/cartSlice";
+
+const { currentHeight } = StatusBar;
 
 export default function DetailsScreen() {
     const theme = useTheme();
@@ -17,6 +22,10 @@ export default function DetailsScreen() {
         queryKey: ["getProduct", id.toString()], // 123 is dynamic
         queryFn: fetchProduct,
     });
+
+    const cart = useSelector((state: RootState) => state.cart);
+    const dispatch = useDispatch<AppDispatch>();
+    const cartItem = cart.find((x) => x.id === id.toString());
 
     if (isLoading)
         return (
@@ -53,35 +62,21 @@ export default function DetailsScreen() {
                 <View style={{ backgroundColor: theme.colors.background }}>
                     <View style={{ paddingBottom: 8 }}>
                         <Text variant="headlineLarge" style={{ lineHeight: 42 }}>
-                            {data?.name ?? ""}
+                            {data?.name}
                         </Text>
-                        <Text variant="labelSmall" style={styles.id_text}>
-                            ID: {id}
+                        <Text variant="labelSmall" style={styles.subtitle}>
+                            ID: {data?.id}
                         </Text>
-                        <Text variant="labelSmall" style={styles.id_text}>
+                        <Text variant="labelSmall" style={styles.subtitle}>
                             barcode: {data?.barcode}
                         </Text>
                     </View>
                     <Divider />
                     <View style={{ flexDirection: "row", marginTop: 12 }}>
-                        <Text
-                            variant="labelLarge"
-                            style={{
-                                marginEnd: "auto",
-                                textAlignVertical: "bottom",
-                                lineHeight: 24,
-                            }}
-                        >
+                        <Text variant="labelLarge" style={styles.textLabel}>
                             ราคา / ชิ้น
                         </Text>
-                        <Text
-                            variant="titleLarge"
-                            style={{
-                                textAlignVertical: "bottom",
-                                lineHeight: 24,
-                                fontWeight: "bold",
-                            }}
-                        >
+                        <Text variant="titleLarge" style={styles.textValue}>
                             {data?.unitPrice ?? 0} .-
                         </Text>
                     </View>
@@ -89,10 +84,27 @@ export default function DetailsScreen() {
                         <Text variant="titleMedium" style={{ fontWeight: "bold" }}>
                             รายละเอียด
                         </Text>
-                        <Text style={styles.id_text}>-</Text>
+                        <Text style={styles.subtitle}>-</Text>
                     </View>
                 </View>
             </ParallaxScrollView>
+            {cartItem && (
+                <FAB
+                    icon={"trash-can"}
+                    mode="flat"
+                    style={{
+                        position: "absolute",
+                        margin: 16,
+                        top: currentHeight,
+                        right: 0,
+                        borderRadius: 36,
+                    }}
+                    size="small"
+                    onPress={() => {
+                        dispatch(removeItem(id.toString()));
+                    }}
+                />
+            )}
             <ProductCartActionBar product={data!} />
         </View>
     );
@@ -113,8 +125,18 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontWeight: "bold",
     },
-    id_text: {
+    subtitle: {
         color: "#999",
+    },
+    textLabel: {
+        marginEnd: "auto",
+        textAlignVertical: "bottom",
+        lineHeight: 24,
+    },
+    textValue: {
+        textAlignVertical: "bottom",
+        lineHeight: 24,
+        fontWeight: "bold",
     },
     reactLogo: {
         height: 178,

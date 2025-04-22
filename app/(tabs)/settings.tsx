@@ -7,7 +7,7 @@ import ScreenContainer from "@/components/ScreenContainer";
 const settingsPage = () => {
     const theme = useAppTheme();
     return (
-        <ScreenContainer>
+        <ScreenContainer style={{ padding: 12, gap: 8 }}>
             <Card>
                 <Card.Title
                     title="Card Title"

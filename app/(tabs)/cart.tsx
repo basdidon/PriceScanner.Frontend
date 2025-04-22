@@ -86,28 +86,7 @@ export default function CartScreen() {
                         </Text>
                     </View>
                 </View>
-                <TouchableHighlight
-                    underlayColor={theme.colors.inverseSuccess}
-                    style={[
-                        styles.btn,
-                        {
-                            backgroundColor: theme.colors.success,
-                        },
-                    ]}
-                    onPress={() => {}}
-                >
-                    <Text
-                        style={[
-                            styles.onBtn,
-                            {
-                                color: theme.colors.onSuccess,
-                            },
-                        ]}
-                    >
-                        ยืนยัน
-                    </Text>
-                </TouchableHighlight>
-                <ConfirmButton onPress={() => {}} />
+                <ConfirmButton text="ยืนยัน" textAlign="center" onPress={() => {}} />
             </Surface>
             <Portal>
                 <Dialog visible={visible} onDismiss={hideDialog}>

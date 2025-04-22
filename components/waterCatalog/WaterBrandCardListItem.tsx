@@ -1,18 +1,19 @@
-import { fetchProduct, Product } from "@/api/product";
+import { fetchProduct, fetchProductByBarcode } from "@/api/product";
 import { localImageMap } from "@/constants/LocalImageMap";
-import { DrinkingCatalogItem, useDrinkingCatalog } from "@/hooks/contexts/useCatalogContext";
+import { useCatalog } from "@/hooks/contexts/useCatalogContext";
 import { RootState } from "@/store";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 import { View, Image } from "react-native";
-import { Card, IconButton, Text } from "react-native-paper";
+import { Card, Text } from "react-native-paper";
 import { useSelector } from "react-redux";
 import Stepper from "../ProductSelector";
+import { DrinkingCatalogItem } from "@/constants/WaterCatalogSeed";
 
 const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogItem) => {
     const localSource = localImageMap[barcode];
-    const { getQuantity, setQuantity } = useDrinkingCatalog();
+    const { getQuantity, setQuantity } = useCatalog();
     const cart = useSelector((state: RootState) => state.cart);
 
     useFocusEffect(

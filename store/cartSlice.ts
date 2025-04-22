@@ -27,11 +27,18 @@ const cartSlice = createSlice({
                 x.id === action.payload.id ? { ...x, quantity: action.payload.newValue } : x
             );
         },
+        setItem: (state, action: PayloadAction<CartItem>) => {
+            if (state.some((x) => x.id === action.payload.id)) {
+                return state.map((x) => (x.id === action.payload.id ? { ...action.payload } : x));
+            } else {
+                state.push(action.payload);
+            }
+        },
         clearCart: (state) => {
             return (state = []);
         },
     },
 });
 
-export const { addItem, removeItem, updateQuantity, clearCart } = cartSlice.actions;
+export const { addItem, removeItem, updateQuantity, setItem, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

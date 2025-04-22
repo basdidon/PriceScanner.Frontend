@@ -1,6 +1,6 @@
-import { View, StatusBar } from "react-native";
+import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { Button, Searchbar, useTheme, FAB } from "react-native-paper";
+import { Button, Searchbar, FAB } from "react-native-paper";
 import { useEffect, useState } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useQuery } from "@tanstack/react-query";
@@ -8,12 +8,9 @@ import { fetchDiscounts } from "@/api/discounts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { setDiscounts } from "@/store/discountSlice";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useAppTheme } from "@/constants/appTheme";
 import ScreenContainer from "@/components/ScreenContainer";
 
 export default function Index() {
-    const theme = useAppTheme();
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
 

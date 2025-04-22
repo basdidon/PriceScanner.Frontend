@@ -1,155 +1,110 @@
-import { fetchProduct, Product } from "@/api/product";
+import { Product } from "@/api/product";
 import { AppDispatch, RootState } from "@/store";
 import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addItem, updateQuantity, removeItem } from "@/store/cartSlice";
-import { DrinkingCatalogSeed } from "@/constants/WaterCatalogSeed";
 import { useQueryClient } from "@tanstack/react-query";
 import { CalculateDiscount, ItemQuantity } from "@/utils/CaculateDiscount";
+import { CartItem, removeItem, setItem } from "@/store/cartSlice";
 
-export interface DrinkingCatalogBrand {
-    name: string;
-    items: DrinkingCatalogItem[];
-}
-
-export type DrinkingCatalogItem = {
-    barcode: string;
-    label: string;
-    packSize: number;
-    quantity: number;
-};
-
-interface DrinkingCatalogContext {
-    catalogBrands: DrinkingCatalogBrand[];
-    getItem: (barcode: string) => DrinkingCatalogItem | undefined;
+interface CatalogContext {
     getQuantity: (barcode: string) => number;
-    setQuantity: (barcode: string, newValue: number) => void;
-    getTotalQuantity: () => number;
+    setQuantity: (barcode: string, qauntity: number) => void;
     totalQuantity: number;
-    GetBarcodes: () => string[];
-    GetBarcodesQuantity: () => { barcode: string; quantity: number }[];
-    //
     totalPrice: number;
     discountAmount: number;
     netPrice: number;
+    submit: () => void;
 }
 
-var DrinkingCatalogContext = createContext<DrinkingCatalogContext | undefined>(undefined);
+var CatalogContext = createContext<CatalogContext | undefined>(undefined);
 
-export const WaterCatalogProvider = ({ children }: { children: ReactNode }) => {
+export const CatalogProvider = ({ children }: { children: ReactNode }) => {
     const queryClient = useQueryClient();
+    const dispatch = useDispatch<AppDispatch>();
     const cart = useSelector((state: RootState) => state.cart);
     const discounts = useSelector((state: RootState) => state.discounts);
-    const dispatch = useDispatch<AppDispatch>();
 
-    const [catalogBrands, setCatalogBrand] = useState<DrinkingCatalogBrand[]>(DrinkingCatalogSeed);
-
-    const getItem = (barcode: string) => {
-        for (const brand of catalogBrands) {
-            const item = brand.items.find((i) => i.barcode === barcode);
-            if (item) return item;
-        }
-        return undefined;
-    };
+    const [quantityRecord, setQuantityRecord] = useState<Record<string, number>>({});
 
     const getQuantity = (barcode: string) => {
-        for (const brand of catalogBrands) {
-            const item = brand.items.find((i) => i.barcode === barcode);
-            if (item) return item.quantity;
-        }
-        return 0;
+        return quantityRecord[barcode] ?? 0;
     };
 
-    const setQuantity = (barcode: string, newValue: number) => {
-        console.log(`set quantity [${barcode}] to ${newValue}`);
-        setCatalogBrand((prevBrands) =>
-            prevBrands.map((brand) => ({
-                ...brand,
-                items: brand.items.map((item) =>
-                    item.barcode === barcode ? { ...item, quantity: newValue } : item
-                ),
-            }))
-        );
+    const setQuantity = (barcode: string, quantity: number) => {
+        setQuantityRecord((prev) => ({
+            ...prev,
+            [barcode]: quantity,
+        }));
     };
 
-    const getTotalQuantity = () => {
-        return catalogBrands.reduce(
-            (total, brand) => total + brand.items.reduce((sum, item) => sum + item.quantity, 0),
-            0
-        );
-    };
-
-    const totalQuantity = catalogBrands.reduce(
-        (total, brand) => total + brand.items.reduce((sum, item) => sum + item.quantity, 0),
+    const totalQuantity = Object.values(quantityRecord).reduce(
+        (sum, quantity) => sum + quantity,
         0
     );
 
-    const GetBarcodes = () => {
-        return catalogBrands.flatMap((x) => x.items).map((x) => x.barcode);
-    };
-    const barcodes = catalogBrands.flatMap((x) => x.items).map((x) => x.barcode);
-
-    const GetBarcodesQuantity = () => {
-        return catalogBrands
-            .flatMap((x) => x.items)
-            .map((x) => ({ barcode: x.barcode, quantity: x.quantity }));
-    };
-
-    const BarcodesWithQuantity = catalogBrands
-        .flatMap((x) => x.items)
-        .map((x) => ({ barcode: x.barcode, quantity: x.quantity }));
-
     const totalPrice = useMemo(() => {
-        return catalogBrands
-            .flatMap((brand) => brand.items)
-            .reduce((sum, item) => {
-                const product = queryClient.getQueryData<Product>(["getProduct", item.barcode]);
-                if (!product) return sum;
-                return sum + item.quantity * product.unitPrice;
-            }, 0);
-    }, [catalogBrands]);
+        return Object.entries(quantityRecord).reduce((sum, [barcode, quantity]) => {
+            const product = queryClient.getQueryData<Product>(["getProduct", barcode]);
+            if (!product) return sum;
+            return sum + quantity * product.unitPrice;
+        }, 0);
+    }, [quantityRecord]);
 
+    //
     const discountAmount = useMemo(() => {
-        const productsQuantity = catalogBrands
-            .flatMap((brand) => brand.items)
-            .map((item) => {
-                const product = queryClient.getQueryData<Product>(["getProduct", item.barcode]);
+        const productsQuantity = Object.entries(quantityRecord)
+            .map(([barcode, quantity]) => {
+                const product = queryClient.getQueryData<Product>(["getProduct", barcode]);
                 if (!product) return undefined;
-                return { id: product.id, quantity: item.quantity };
+                return { id: product.id, quantity };
             })
             .filter((x): x is ItemQuantity => x !== undefined);
 
         return CalculateDiscount(productsQuantity, discounts);
-    }, [catalogBrands, discounts]);
+    }, [quantityRecord, discounts]);
 
+    //
     const netPrice = useMemo(() => totalPrice - discountAmount, [totalPrice, discountAmount]);
 
+    const submit = () => {
+        const items = Object.entries(quantityRecord)
+            .map(([barcode, quantity]) => {
+                const product = queryClient.getQueryData<Product>(["getProduct", barcode]);
+                if (!product) return undefined;
+                return { ...product, quantity: quantity };
+            })
+            .filter((x): x is CartItem => x !== undefined);
+
+        for (const item of items) {
+            if (item.quantity > 0) {
+                dispatch(setItem(item));
+            } else {
+                dispatch(removeItem(item.id));
+            }
+        }
+    };
+
     return (
-        <DrinkingCatalogContext.Provider
+        <CatalogContext.Provider
             value={{
-                catalogBrands,
-                getItem,
                 getQuantity,
                 setQuantity,
                 totalQuantity,
-                getTotalQuantity,
-                GetBarcodes,
-                GetBarcodesQuantity,
-                //
                 totalPrice,
                 discountAmount,
                 netPrice,
+                submit,
             }}
         >
             {children}
-        </DrinkingCatalogContext.Provider>
+        </CatalogContext.Provider>
     );
 };
 
-export const useDrinkingCatalog = (): DrinkingCatalogContext => {
-    const context = useContext(DrinkingCatalogContext);
+export const useCatalog = (): CatalogContext => {
+    const context = useContext(CatalogContext);
     if (!context) {
-        throw new Error("useDrinkingCatalog must be used within a DrinkingCatalogProvider");
+        throw new Error("useCatalog must be used within a CatalogProvider");
     }
     return context;
 };

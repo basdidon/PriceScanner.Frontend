@@ -1,3 +1,6 @@
+{
+}
+/*
 import { Product } from "@/api/product";
 import { AppTheme } from "@/constants/appTheme";
 import { useDrinkingCatalog } from "@/hooks/contexts/useCatalogContext";
@@ -10,7 +13,6 @@ import { useMemo } from "react";
 import { StyleSheet, TouchableHighlight, View, ViewProps } from "react-native";
 import { Badge, Text, useTheme } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
-
 type WaterCatalogSubmitButtonProps = ViewProps & {};
 
 const WaterCatalogSubmitButton = (props: WaterCatalogSubmitButtonProps) => {
@@ -143,3 +145,4 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
 });
+*/

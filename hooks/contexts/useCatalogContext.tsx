@@ -44,7 +44,7 @@ export const CatalogProvider = ({ children }: { children: ReactNode }) => {
 
     const totalPrice = useMemo(() => {
         return Object.entries(quantityRecord).reduce((sum, [barcode, quantity]) => {
-            const product = queryClient.getQueryData<Product>(["getProduct", barcode]);
+            const product = queryClient.getQueryData<Product>(["products", barcode]);
             if (!product) return sum;
             return sum + quantity * product.unitPrice;
         }, 0);
@@ -54,7 +54,7 @@ export const CatalogProvider = ({ children }: { children: ReactNode }) => {
     const discountAmount = useMemo(() => {
         const productsQuantity = Object.entries(quantityRecord)
             .map(([barcode, quantity]) => {
-                const product = queryClient.getQueryData<Product>(["getProduct", barcode]);
+                const product = queryClient.getQueryData<Product>(["products", barcode]);
                 if (!product) return undefined;
                 return { id: product.id, quantity };
             })
@@ -69,7 +69,7 @@ export const CatalogProvider = ({ children }: { children: ReactNode }) => {
     const submit = () => {
         const items = Object.entries(quantityRecord)
             .map(([barcode, quantity]) => {
-                const product = queryClient.getQueryData<Product>(["getProduct", barcode]);
+                const product = queryClient.getQueryData<Product>(["products", barcode]);
                 if (!product) return undefined;
                 return { ...product, quantity: quantity };
             })

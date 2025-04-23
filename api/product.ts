@@ -6,19 +6,18 @@ export type Product = {
     barcode: string;
     name: string;
     unitPrice: number;
+    thumbnailUrl?: string;
 };
 
-export const fetchProduct = async ({
+export const fetchProductQueryFn = async ({
     queryKey,
 }: QueryFunctionContext<[string, string]>): Promise<Product> => {
     const [, productId] = queryKey;
-    const res = await fetch(`${baseUrl}/api/v1/products/${productId}`);
-    if (!res.ok) throw new Error("Failed to fetch product");
-    return res.json();
+    return fetchProduct(productId);
 };
 
-export const fetchProductByBarcode = async (barcode: string): Promise<Product> => {
-    const res = await fetch(`${baseUrl}/api/v1/products/${barcode}`);
+export const fetchProduct = async (identity: string): Promise<Product> => {
+    const res = await fetch(`${baseUrl}/api/v1/products/${identity}`);
     if (!res.ok) throw new Error("Failed to fetch product");
     return res.json();
 };

@@ -15,7 +15,7 @@ export default function WaterCatalog() {
     return (
         <>
             <ScreenContainer>
-                <ScrollView style={{ padding: 8, paddingHorizontal: 12 }}>
+                <ScrollView contentContainerStyle={{ padding: 8, paddingHorizontal: 12 }}>
                     {DrinkingCatalogSeed.map((x, idx) => (
                         <WaterCatalogBrandCard key={idx} {...x} />
                     ))}

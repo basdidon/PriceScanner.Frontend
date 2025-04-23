@@ -1,18 +1,18 @@
 import { fetchDiscountById } from "@/api/discounts";
-import { fetchProduct } from "@/api/product";
+import { fetchProductQueryFn } from "@/api/product";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import Stepper from "@/components/ProductSelector";
+import Stepper from "@/components/Stepper";
 import { RootState } from "@/store";
 import { setDiscount } from "@/store/discountSlice";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Image, StyleSheet } from "react-native";
-import { Button, Card, IconButton, Surface, Text, useTheme } from "react-native-paper";
+import { Button, Card, Text, useTheme } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 
 const DiscountProductCard = ({ id }: { id: string }) => {
-    const { data } = useQuery({ queryKey: ["getProductById", id], queryFn: fetchProduct });
+    const { data } = useQuery({ queryKey: ["products", id], queryFn: fetchProductQueryFn });
     const cart = useSelector((state: RootState) => state.cart);
 
     const cartItem = cart.find((x) => x.id === id);
@@ -45,7 +45,7 @@ const DiscountPage = () => {
     const dispatch = useDispatch();
 
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ["getDiscountById", id.toString()], // 123 is dynamic
+        queryKey: ["discounts", id.toString()], // 123 is dynamic
         queryFn: fetchDiscountById,
     });
 

@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { Button, Searchbar, FAB } from "react-native-paper";
+import { Button, Searchbar, FAB, Avatar } from "react-native-paper";
 import { useEffect, useState } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useQuery } from "@tanstack/react-query";
@@ -9,13 +9,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { setDiscounts } from "@/store/discountSlice";
 import ScreenContainer from "@/components/ScreenContainer";
+import { baseUrl } from "@/constants/baseUrl";
 
 export default function Index() {
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
 
     const { data } = useQuery({
-        queryKey: ["getDiscounts"],
+        queryKey: ["discounts"],
         queryFn: fetchDiscounts,
     });
 
@@ -24,7 +25,6 @@ export default function Index() {
 
     useEffect(() => {
         if (data) {
-            console.log("Dispatching setDiscounts with:", data);
             dispatch(setDiscounts(data));
         }
     }, [data]);
@@ -32,26 +32,7 @@ export default function Index() {
     return (
         <>
             <ScreenContainer style={{ padding: 8 }}>
-                <FAB
-                    icon="magnify"
-                    style={{
-                        position: "absolute",
-                        margin: 16,
-                        right: 0,
-                        bottom: 0,
-                        borderRadius: 36,
-                    }}
-                    mode="flat"
-                    size="medium"
-                    onPress={() => console.log("Pressed")}
-                />
                 <ExpoStatusBar style={"auto"} />
-                <Searchbar
-                    placeholder="Search"
-                    onChangeText={setSearchQuery}
-                    value={searchQuery}
-                    onSubmitEditing={() => console.log(searchQuery)}
-                />
                 <View
                     style={{
                         flex: 1,

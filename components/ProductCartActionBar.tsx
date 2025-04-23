@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { Text, Surface } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import Stepper from "./ProductSelector";
+import Stepper from "./Stepper";
 import ConfirmButton from "./ConfirmButton";
 import { setItem } from "@/store/cartSlice";
 import { useRouter } from "expo-router";

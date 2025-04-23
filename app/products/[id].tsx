@@ -5,7 +5,7 @@ import { View, StyleSheet, Image, StatusBar } from "react-native";
 import ProductCartActionBar from "@/components/ProductCartActionBar";
 import { useTheme } from "react-native-paper";
 import { useQuery } from "@tanstack/react-query";
-import { fetchProduct } from "@/api/product";
+import { fetchProductQueryFn } from "@/api/product";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { removeItem } from "@/store/cartSlice";
@@ -19,8 +19,8 @@ export default function DetailsScreen() {
     const router = useRouter();
 
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ["getProduct", id.toString()], // 123 is dynamic
-        queryFn: fetchProduct,
+        queryKey: ["products", id.toString()], // 123 is dynamic
+        queryFn: fetchProductQueryFn,
     });
 
     const cart = useSelector((state: RootState) => state.cart);

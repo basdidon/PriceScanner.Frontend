@@ -1,18 +1,18 @@
-import { fetchProduct, fetchProductByBarcode } from "@/api/product";
-import { localImageMap } from "@/constants/LocalImageMap";
+import { fetchProductQueryFn } from "@/api/product";
 import { useCatalog } from "@/hooks/contexts/useCatalogContext";
 import { RootState } from "@/store";
 import { useQuery } from "@tanstack/react-query";
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
-import { View, Image } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Card, Text } from "react-native-paper";
 import { useSelector } from "react-redux";
-import Stepper from "../ProductSelector";
+import Stepper from "../Stepper";
 import { DrinkingCatalogItem } from "@/constants/WaterCatalogSeed";
+import { baseUrl } from "@/constants/baseUrl";
+import { Image } from "expo-image";
 
 const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogItem) => {
-    const localSource = localImageMap[barcode];
     const { getQuantity, setQuantity } = useCatalog();
     const cart = useSelector((state: RootState) => state.cart);
 
@@ -28,51 +28,30 @@ const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogIte
     const quantity = getQuantity(barcode);
 
     const { data } = useQuery({
-        queryKey: ["getProduct", barcode],
-        queryFn: fetchProduct,
+        queryKey: ["products", barcode],
+        queryFn: fetchProductQueryFn,
     });
 
     return (
         <>
-            <Card.Content style={{ gap: 12 }}>
-                <View
-                    style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 4,
-                        marginVertical: 8,
-                    }}
-                >
-                    <Image
-                        source={localSource}
-                        style={{ width: 60, height: 60 }}
-                        alt="product-image"
-                    />
-
-                    <View style={{ marginEnd: "auto" }}>
-                        <View
-                            style={{
-                                flexDirection: "row",
-                                alignItems: "baseline",
-                            }}
-                        >
-                            <Text variant="titleLarge" style={{ marginStart: 8 }}>
-                                {label}
-                            </Text>
-                            <Text variant="labelSmall" style={{ marginStart: 8 }}>
-                                QTY: {packSize}
-                            </Text>
+            <Card.Content style={{ gap: 4 }}>
+                <View style={styles.container}>
+                    <View style={styles.imageWrapper}>
+                        {data?.thumbnailUrl && (
+                            <Image
+                                source={{ uri: `${baseUrl}/api/v1/images/${data.thumbnailUrl}` }}
+                                style={{ flex: 1 }}
+                                alt="product-image"
+                                cachePolicy={"disk"}
+                            />
+                        )}
+                    </View>
+                    <View style={styles.contentContainer}>
+                        <View style={styles.labelContainer}>
+                            <Text variant="titleLarge">{label}</Text>
+                            <Text variant="labelSmall">QTY: {packSize}</Text>
                         </View>
-                        <Text
-                            variant="labelLarge"
-                            style={{
-                                marginStart: 8,
-                                marginTop: 8,
-                                marginEnd: "auto",
-                            }}
-                        >
-                            ฿{data?.unitPrice}
-                        </Text>
+                        <Text variant="labelLarge">฿{data?.unitPrice}</Text>
                     </View>
                     <Stepper
                         value={quantity}
@@ -86,3 +65,24 @@ const WaterBrandCardListItem = ({ barcode, label, packSize }: DrinkingCatalogIte
 };
 
 export default WaterBrandCardListItem;
+
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 12,
+        marginVertical: 4,
+    },
+    contentContainer: {
+        marginEnd: "auto",
+        flexGrow: 1,
+        flexShrink: 1,
+        flexBasis: "auto",
+    },
+    labelContainer: {
+        flexDirection: "row",
+        alignItems: "baseline",
+        gap: 4,
+    },
+    imageWrapper: { width: 48, height: 48, borderRadius: 8, overflow: "hidden" },
+});

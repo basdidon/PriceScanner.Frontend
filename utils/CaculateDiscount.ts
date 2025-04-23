@@ -10,15 +10,14 @@ export const CalculateDiscount = (items: ItemQuantity[], discounts: Discount[]) 
 
     // Create a shared item quantity map
     const itemMap = new Map<string, number>();
-    console.log("items:");
     for (const item of items) {
-        console.log(`${item.id} => ${item.quantity}`);
+        //console.log(`${item.id} => ${item.quantity}`);
         itemMap.set(item.id, item.quantity);
     }
 
-    console.log(`discounts(n) : ${discounts.length}`);
+    //console.log(`discounts(n) : ${discounts.length}`);
     for (const discount of discounts) {
-        console.log(`- ${discount.name}`);
+        //console.log(`- ${discount.name}`);
         const { discountConditions, discountAmount } = discount;
 
         let timesApplied = 0;
@@ -34,7 +33,7 @@ export const CalculateDiscount = (items: ItemQuantity[], discounts: Discount[]) 
 
                 for (const id of condition.productIds) {
                     const available = itemMap.get(id) ?? 0;
-                    console.log(`available[${id}]: ${available}`);
+                    //console.log(`available[${id}]: ${available}`);
                     const used = Math.min(requiredAmount, available);
                     requiredAmount -= used;
                     validItems.set(id, used);

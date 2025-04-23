@@ -19,7 +19,6 @@ const discountSlice = createSlice({
             } else {
                 // Discount found, update it
                 state[index] = action.payload;
-                console.log(`update discount ${action.payload.id}`);
             }
         },
         addDiscount: (state, action: PayloadAction<Discount>) => {

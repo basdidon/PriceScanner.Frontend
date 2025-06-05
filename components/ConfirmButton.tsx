@@ -1,7 +1,6 @@
 import { useAppTheme } from "@/constants/appTheme";
 import { ReactNode } from "react";
-import { ColorValue, TouchableHighlight, View } from "react-native";
-import { StyleSheet } from "react-native";
+import { ColorValue, StyleSheet, TouchableHighlight, View } from "react-native";
 import { Text } from "react-native-paper";
 
 type ConfirmButtonProps = {

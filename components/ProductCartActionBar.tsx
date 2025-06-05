@@ -1,16 +1,20 @@
-import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
-import { Text, Surface } from "react-native-paper";
-import { useDispatch, useSelector } from "react-redux";
+import { Product } from "@/api/product";
+import { useAppTheme } from "@/constants/appTheme";
 import { AppDispatch, RootState } from "@/store";
-import Stepper from "./Stepper";
-import ConfirmButton from "./ConfirmButton";
 import { setItem } from "@/store/cartSlice";
 import { useRouter } from "expo-router";
-import { Product } from "@/api/product";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { Surface, Text } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+import ConfirmButton from "./ConfirmButton";
+import Stepper from "./Stepper";
 
 const ProductCartActionBar = ({ product }: { product: Product }) => {
     const router = useRouter();
+    const theme = useAppTheme();
+    const insets = useSafeAreaInsets();
 
     const cart = useSelector((state: RootState) => state.cart);
     const dispatch = useDispatch<AppDispatch>();
@@ -19,7 +23,13 @@ const ProductCartActionBar = ({ product }: { product: Product }) => {
     const [quantity, setQuantity] = useState<number>(cartItem?.quantity ?? 1);
 
     return (
-        <Surface elevation={1} style={styles.surface}>
+        <Surface
+            elevation={1}
+            style={[
+                styles.surface,
+                { backgroundColor: theme.colors.background, paddingBottom: insets.bottom },
+            ]}
+        >
             <Stepper
                 value={quantity}
                 onChanged={(newValue) => setQuantity(newValue)}

@@ -7,7 +7,7 @@ import { setDiscount } from "@/store/discountSlice";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { View, Image, StyleSheet } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import { Button, Card, Text, useTheme } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -44,14 +44,18 @@ const DiscountPage = () => {
     const router = useRouter();
     const dispatch = useDispatch();
 
-    const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ["discounts", id.toString()], // 123 is dynamic
+    const { data, isLoading, isError, error, refetch } = useQuery({
+        queryKey: ["discounts", id.toString()],
         queryFn: fetchDiscountById,
     });
 
     useEffect(() => {
         if (data) dispatch(setDiscount(data));
     }, [data]);
+
+    if (isError) {
+        return <Text>{error.message}</Text>;
+    }
 
     return (
         <View style={{ flex: 1 }}>

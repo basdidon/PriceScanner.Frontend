@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet, ViewProps } from "react-native";
 import { useAppTheme } from "@/constants/appTheme";
+import { ReactNode } from "react";
+import { StyleSheet, ViewProps } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type ScreenContainerProps = ViewProps & { children: ReactNode };
 

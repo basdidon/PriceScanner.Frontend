@@ -1,14 +1,13 @@
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, Button, Divider, FAB, Text } from "react-native-paper";
-import { View, StyleSheet, Image, StatusBar } from "react-native";
-import ProductCartActionBar from "@/components/ProductCartActionBar";
-import { useTheme } from "react-native-paper";
-import { useQuery } from "@tanstack/react-query";
 import { fetchProductQueryFn } from "@/api/product";
-import { useDispatch, useSelector } from "react-redux";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import ProductCartActionBar from "@/components/ProductCartActionBar";
 import { AppDispatch, RootState } from "@/store";
 import { removeItem } from "@/store/cartSlice";
+import { useQuery } from "@tanstack/react-query";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Image, StatusBar, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Button, Divider, FAB, Text, useTheme } from "react-native-paper";
+import { useDispatch, useSelector } from "react-redux";
 
 const { currentHeight } = StatusBar;
 
@@ -19,7 +18,7 @@ export default function DetailsScreen() {
     const router = useRouter();
 
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ["products", id.toString()], // 123 is dynamic
+        queryKey: ["products", id.toString()],
         queryFn: fetchProductQueryFn,
     });
 

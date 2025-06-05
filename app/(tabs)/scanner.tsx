@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Text, View, StyleSheet, Button, Dimensions, StatusBar } from "react-native";
-import { CameraView, Camera, BarcodeScanningResult } from "expo-camera";
-import Svg, { Defs, ClipPath, G, Rect } from "react-native-svg";
+import { useIsFocused } from "@react-navigation/native"; // also works with expo-router
+import { BarcodeScanningResult, Camera, CameraView } from "expo-camera";
 import { useFocusEffect, useRouter } from "expo-router";
+import { StatusBar as ExpoStatusBar } from "expo-status-bar";
+import React, { useCallback, useEffect, useState } from "react";
+import { Button, Dimensions, StatusBar, StyleSheet, Text, View } from "react-native";
+import Svg, { ClipPath, Defs, G, Rect } from "react-native-svg";
 
 // We can use this to make the overlay fill the entire width
 var { width, height } = Dimensions.get("screen");
@@ -12,6 +14,7 @@ var boxHeight: number = 150;
 export default function CameraScannerComponent() {
     const [hasPermission, setHasPermission] = useState(false);
     const [scanned, setScanned] = useState(false);
+    const isFocused = useIsFocused(); // needed  prevent mounting the camera when the screen is not focused
 
     const router = useRouter();
 
@@ -31,7 +34,7 @@ export default function CameraScannerComponent() {
 
     const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
         setScanned(true);
-        //alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+        alert(`Bar code with type ${type} and data ${data} has been scanned!`);
         router.push(`/products/${data}`);
     };
 
@@ -44,11 +47,15 @@ export default function CameraScannerComponent() {
 
     return (
         <View style={styles.container}>
-            <CameraView
-                onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-                barcodeScannerSettings={{ barcodeTypes: ["ean13"] }}
-                style={{ flex: 1, zIndex: -3 }}
-            />
+            <ExpoStatusBar style="light" />
+            {isFocused && (
+                <CameraView
+                    /*key={cameraKey}*/
+                    onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+                    barcodeScannerSettings={{ barcodeTypes: ["ean13"] }}
+                    style={{ flex: 1, zIndex: -3 }}
+                />
+            )}
             {scanned && (
                 <Button
                     title={"Tap to Scan Again"}

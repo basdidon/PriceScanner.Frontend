@@ -1,11 +1,11 @@
-import { fetchProduct, fetchProductQueryFn } from "@/api/product";
+import { fetchProductQueryFn } from "@/api/product";
 import { baseUrl } from "@/constants/baseUrl";
 import { CartItem } from "@/store/cartSlice";
 import { useQuery } from "@tanstack/react-query";
-import { useFocusEffect, useRouter } from "expo-router";
-import { View, StyleSheet } from "react-native";
-import { Card, Text } from "react-native-paper";
 import { Image } from "expo-image";
+import { useFocusEffect, useRouter } from "expo-router";
+import { StyleSheet, View } from "react-native";
+import { Card, Text } from "react-native-paper";
 
 const CartItemCard = (item: CartItem) => {
     const router = useRouter();

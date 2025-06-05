@@ -1,23 +1,17 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { View, StatusBar, TouchableHighlight, StyleSheet, ScrollView } from "react-native";
-import { Button, Dialog, FAB, IconButton, Portal, Surface, Text } from "react-native-paper";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
-import { clearCart } from "@/store/cartSlice";
-import { useAppTheme } from "@/constants/appTheme";
-import CartItemCard from "@/components/CartItemCart";
-import { CalculateDiscount, ItemQuantity } from "@/utils/CaculateDiscount";
+import CartItemCard from "@/components/CartItemCard";
 import ConfirmButton from "@/components/ConfirmButton";
+import { RootState } from "@/store";
+import { CalculateDiscount, ItemQuantity } from "@/utils/CalculateDiscount";
+import React, { useMemo } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Surface, Text } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
 
 export default function CartScreen() {
     const cart = useSelector((state: RootState) => state.cart);
     const discounts = useSelector((state: RootState) => state.discounts);
-    const dispatch = useDispatch<AppDispatch>();
-    const theme = useAppTheme();
-
-    const [visible, setVisible] = React.useState(false);
-    const showDialog = () => setVisible(true);
-    const hideDialog = () => setVisible(false);
+    const insets = useSafeAreaInsets();
 
     const totalPrice = cart.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
 
@@ -36,19 +30,6 @@ export default function CartScreen() {
     return (
         <View style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
-                <Surface style={{ paddingTop: StatusBar.currentHeight }}>
-                    <Text variant="headlineSmall" style={styles.headerText}>
-                        ตะกร้าสินค้า
-                    </Text>
-                    <IconButton
-                        icon={"trash-can"}
-                        mode="contained"
-                        style={{ position: "absolute", bottom: 0, right: 0 }}
-                        onPress={() => showDialog() /*dispatch(clearCart())*/}
-                        disabled={cart.length <= 0}
-                    />
-                </Surface>
-
                 {cart.length === 0 ? (
                     <View style={{ flex: 1, justifyContent: "center" }}>
                         <Text variant="labelSmall" style={styles.emptyCartText}>
@@ -67,7 +48,7 @@ export default function CartScreen() {
                     </ScrollView>
                 )}
             </View>
-            <Surface style={{ padding: 12 }}>
+            <Surface style={{ padding: 12, paddingBottom: insets.bottom, backgroundColor: "#fff" }}>
                 <View style={{ flexDirection: "row", gap: 24 }}>
                     <View style={{ flex: 2, flexDirection: "column" }}>
                         <View style={{ flex: 2, flexDirection: "row" }}>
@@ -88,25 +69,6 @@ export default function CartScreen() {
                 </View>
                 <ConfirmButton text="ยืนยัน" textAlign="center" onPress={() => {}} />
             </Surface>
-            <Portal>
-                <Dialog visible={visible} onDismiss={hideDialog}>
-                    <Dialog.Title>ล้างตะกร้า</Dialog.Title>
-                    <Dialog.Content>
-                        <Text variant="bodyMedium">คุณต้องการจะล้างตะกร้าใช่หรือไม่</Text>
-                    </Dialog.Content>
-                    <Dialog.Actions>
-                        <Button onPress={hideDialog}>ไม่</Button>
-                        <Button
-                            onPress={() => {
-                                dispatch(clearCart());
-                                hideDialog();
-                            }}
-                        >
-                            ใช่
-                        </Button>
-                    </Dialog.Actions>
-                </Dialog>
-            </Portal>
         </View>
     );
 }

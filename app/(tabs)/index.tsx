@@ -1,15 +1,14 @@
-import { View } from "react-native";
-import { useRouter } from "expo-router";
-import { Button, Searchbar, FAB, Avatar } from "react-native-paper";
-import { useEffect, useState } from "react";
-import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import { useQuery } from "@tanstack/react-query";
 import { fetchDiscounts } from "@/api/discounts";
-import { useDispatch, useSelector } from "react-redux";
+import ScreenContainer from "@/components/ScreenContainer";
 import { AppDispatch, RootState } from "@/store";
 import { setDiscounts } from "@/store/discountSlice";
-import ScreenContainer from "@/components/ScreenContainer";
-import { baseUrl } from "@/constants/baseUrl";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
+import { StatusBar as ExpoStatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
+import { Button } from "react-native-paper";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Index() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -50,6 +49,15 @@ export default function Index() {
                     >
                         go 8051164586194
                     </Button>
+                    <Button
+                        mode="contained"
+                        style={{ margin: 8 }}
+                        onPress={() => {
+                            router.push("/products/create");
+                        }}
+                    >
+                        Create Product
+                    </Button>
                     {discounts.map((x, id) => (
                         <Button
                             key={id}
@@ -61,7 +69,7 @@ export default function Index() {
                                 })
                             }
                         >
-                            {x.name}
+                            {x.name}:{x.id}
                         </Button>
                     ))}
                 </View>
